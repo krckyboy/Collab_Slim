@@ -11,15 +11,16 @@ module.exports = async (req, res) => {
 
 		// Fetch user with user id
 		const targetUser = await User.query().findById(targetUserId)
-		const user = await User.query().findById(req.user.id).eager('blocked_members')
-		const blocked_members = user.blocked_members
 
 		if (!targetUser) {
 			return res.status(404).json({ msg: 'No user found!' })
 		}
 
-		let notBlockedInTheFirstPlace = false
+		const user = await User.query().findById(req.user.id).eager('blocked_members')
+		const blocked_members = user.blocked_members
+
 		// Check if not blocked in the first place
+		let notBlockedInTheFirstPlace = false
 		if (blocked_members && blocked_members.length > 0) {
 			if (!blocked_members.map(m => m.id).includes(targetUser.id)) {
 				notBlockedInTheFirstPlace = true
@@ -38,7 +39,7 @@ module.exports = async (req, res) => {
 		// Create an event for blocking the user
 		await createEvent({
 			type: 'user_unblocked',
-			userId: req.user.id, // the triggering
+			triggeringUserId: req.user.id, // the triggering
 			targetUserId // the blocked member
 		})
 

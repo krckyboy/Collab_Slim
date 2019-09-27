@@ -7,15 +7,19 @@ module.exports = async (req, res) => {
 		const { name, email, password } = req.body
 		const existingUsers = await User.query().where({ email }).orWhere('name', name)
 
-		for (let user of existingUsers) {
-			if (user.email === email) {
-				return res.status(400).json({ errors: [{ msg: 'User already exists with that email.' }] })
+		if (existingUsers.length > 0) {
+			for (let user of existingUsers) {
+				if (user.email === email) {
+					return res.status(400).json({ msg: 'User already exists with that email!' })
+				}
+
+				if (existingUsers[0].name === name) {
+					return res.status(400).json({ msg: 'User already exists with that name!' })
+				}
 			}
 
-			if (existingUsers[0].name === name) {
-				return res.status(400).json({ errors: [{ msg: 'User already exists with that name.' }] })
-			}
 		}
+
 
 		const hashedPassword = await bcrypt.hash(password, 8)
 

@@ -8,17 +8,21 @@ module.exports = async (req, res) => {
 			.where({ user_to_notify: req.user.id })
 			.eager('event')
 			.modifyEager('event',
-				builder => builder.select('type', 'id as event_id', 'project_id', 'triggering_user_id', 'project_event', 'specific_event_id', 'target_user_id' ))
+				builder => builder.select('type',
+					'id as event_id',
+					'project_id',
+					'triggering_user_id',
+					'specific_event_id',
+					'target_user_id'))
 			.orderBy('created_at', 'desc')
 
-		// @todo Transform user_blocked notifications into user_removed / user_left from project for easier handling on front-end
-
 		// Fetch the exact stuff depending on type, write a function
-
 		const sortedNotifications = notifications.map(el => {
 			const type = el.event.type
 			const objEvent = {}
 
+			// @todo Look into this chunk of code
+			// Perhaps using knex would flatten it out automatically.
 			for (let key in el.event) {
 				if (el.event[key]) {
 					if (key === type) {

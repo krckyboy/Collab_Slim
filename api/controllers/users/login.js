@@ -5,22 +5,23 @@ const bcrypt = require('bcryptjs')
 
 module.exports = async (req, res) => {
 	const errors = validationResult(req)
+
 	if (!errors.isEmpty()) {
 		return res.status(400).json({ errors: errors.array() })
 	}
+
 	try {
 		const { email, password } = req.body
-
 		const user = await User.query().findOne({ email }).eager('authentication')
 
 		if (!user) {
-			return res.status(404).json({ errors: [{ msg: 'Invalid credentials' }] })
+			return res.status(400).json({ msg: 'Invalid credentials!' })
 		}
 
 		const passwordsMatch = await bcrypt.compare(password, user.authentication.password)
 
 		if (!passwordsMatch) {
-			return res.status(400).json({ errors: [{ msg: 'Invalid credentials' }] })
+			return res.status(400).json({ msg: 'Invalid credentials!' })
 		}
 
 		const token = generateAuthToken(user.id)

@@ -10,13 +10,14 @@ module.exports = async (req, res) => {
 		}
 
 		// Fetch user with user id
-		const targetUser = await User.query().findById(userId).eager('projects.[project_members]')
-		const user = await User.query().findById(req.user.id).eager('[blocked_members, projects.[project_members], projects_user_is_a_member_of.[project_members]]')
-		const blocked_members = user.blocked_members
+		const targetUser = await User.query().findById(userId)
 
 		if (!targetUser) {
 			return res.status(404).json({ msg: 'No user found!' })
 		}
+
+		const user = await User.query().findById(req.user.id)
+		const blocked_members = user.blocked_members
 
 		// Check if already blocked
 		if (blocked_members && blocked_members.length > 0) {
@@ -28,17 +29,15 @@ module.exports = async (req, res) => {
 		// Create an event for blocking the user
 		await createEvent({
 			type: 'user_blocked',
-			userId: req.user.id, // the triggering
-			targetUserId: userId // the blocked member
+			triggeringUserId: req.user.id,
+			targetUserId: userId
 		})
 
 		await user
 			.$relatedQuery('blocked_members')
 			.relate({ id: targetUser.id })
 
-		delete targetUser.project_members
-
-		return res.json(targetUser)
+		return res.json({ targetUser })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

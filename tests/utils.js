@@ -58,6 +58,20 @@ async function registerNewUser(user, status = 201) {
 	}
 }
 
+async function login(user, status = 200) {
+	const res = await request(app)
+		.post('/api/users/login')
+		.send({ ...user })
+		.expect(status)
+
+	if (res.body.token) {
+		return res.body.token
+	} else {
+		const errorObject = JSON.parse(res.error.text)
+		return errorObject
+	}
+}
+
 module.exports = {
 	registerNewUser: registerNewUser,
 	userOne,
@@ -65,4 +79,5 @@ module.exports = {
 	userThree,
 	userFour,
 	userFive,
+	login,
 }
