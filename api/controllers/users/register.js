@@ -24,7 +24,6 @@ module.exports = async (req, res) => {
 		})
 
 		await newUser.$relatedQuery('authentication').insert({ password: hashedPassword, user_id: newUser.id })
-		await newUser.$relatedQuery('profile').insert({ user_id: newUser.id })
 
 		const token = generateAuthToken(newUser.id)
 
