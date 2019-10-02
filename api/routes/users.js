@@ -49,4 +49,9 @@ router.get('/notifications', auth, require('../controllers/users/fetchLoggedUser
 // Private 
 router.get('/:user_id', auth, require('../controllers/users/getUserById'))
 
+// @route 	PUT api/users/user
+// @desc 	Update user - including skills that a user has
+// @access 	Private
+router.put('/', auth, require('../controllers/users/updateProfile'))
+
 module.exports = router
