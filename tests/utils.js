@@ -72,12 +72,38 @@ async function login(user, status = 200) {
 	}
 }
 
+async function blockUser(token, userId, status = 200) {
+	await request(app)
+		.post(`/api/users/block/${userId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+}
+
+async function unblockUser(token, userId, status = 200) {
+	await request(app)
+		.post(`/api/users/unblock/${userId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+}
+
+async function fetchUserById(token, userId, status = 200) {
+	const res = await request(app)
+		.get(`/api/users/${userId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
-	registerNewUser: registerNewUser,
+	registerNewUser,
 	userOne,
 	userTwo,
 	userThree,
 	userFour,
 	userFive,
 	login,
+	blockUser,
+	unblockUser,
+	fetchUserById,
 }

@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 			const type = el.event.type
 			const objEvent = {}
 
-			// @todo Look into this chunk of code
+			// @todo Look into this chunk of code, check syntax's array podcast
 			// Perhaps using knex would flatten it out automatically.
 			for (let key in el.event) {
 				if (el.event[key]) {

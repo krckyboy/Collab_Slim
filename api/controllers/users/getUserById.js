@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ errors: [{ msg: 'User does not exist.' }] })
 		}
 
-		const user = await User.query().findById(user_id_number).eager('[profile, has_skills, blocked_members]')
+		const user = await User.query().findById(user_id_number).eager('[has_skills, blocked_members]')
 
 		if (!user) {
 			return res.status(404).json({ errors: [{ msg: 'User does not exist.' }] })
@@ -26,14 +26,14 @@ module.exports = async (req, res) => {
 		}
 
 		// Check if the logged user has blocked the user he's trying to access
-		if (checkedIfBlocked(req.user.id, user_id_number)) {
+		if (await checkedIfBlocked(req.user.id, user_id_number)) {
 			return res.status(400).json({ msg: 'You have to unblock this member first!' })
 		}
 
 		// don't include blocked members
 		delete user.blocked_members
 
-		res.status(200).json(user)
+		res.status(200).json({ user })
 	} catch (err) {
 		console.error(err.message)
 		res.status(500).send('Server error')

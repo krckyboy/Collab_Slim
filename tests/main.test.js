@@ -10,7 +10,7 @@ const {
 	userFour,
 	userFive,
 	registerNewUser,
-	login,
+	login, // new
 	populateProfile,
 	createProject,
 	createPortfolioProject,
@@ -112,3 +112,92 @@ test('Login [200, 2x 400]', async () => {
 	const responseLoginFail2 = await login({ email: userOne.email, password: 'invalidPassword' }, 400)
 	expect(responseLoginFail2.msg).toBe('Invalid credentials!')
 })
+
+// @todo skills, project
+test('Delete user', async () => {
+	// User two registers
+	await registerNewUser(userTwo, 201)
+
+	// *** User one populates profile, adding skills
+	// *** User two has no skills
+
+	// *** User one creates project 1
+
+	// *** User one creates project 2
+
+	// *** User one archives project 2
+
+	await request(app)
+		.delete('/api/users')
+		.set('Authorization', `Bearer ${userOne.token}`)
+		.expect(200)
+
+	// Check if only user two exists
+	const users = await User.query()
+	expect(users.length).toBe(1)
+	expect(users[0].id).toBe(userTwo.id)
+
+	// *** Checks skills count (has_skills)
+
+	await request(app)
+		.delete('/api/users')
+		.set('Authorization', `Bearer ${userTwo.token}`)
+		.expect(200)
+
+	// *** Check skills count (has_skills) after deleting both
+})
+
+// @todo project
+test('Block + unblock user + getUserById', async () => {
+	// User two, three registers
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userThree, 201)
+
+	// *** User one creates a project
+
+	// *** User two creates a project
+
+	// User one blocks user two and user three
+	await blockUser(userOne.token, userTwo.id, 200)
+	await blockUser(userOne.token, userThree.id, 200)
+
+	// User one should have two blocked members
+	const { blocked_members } = await User.query().findById(userOne.id).eager('blocked_members')
+	expect(blocked_members.length).toBe(2)
+	expect([userTwo.id, userThree.id].some(id => blocked_members.map(user => user.id).includes(id))).toBe(true)
+
+	// User one tries to fetch user two [400]
+	await fetchUserById(userOne.token, userTwo.id, 400)
+
+	// *** User one tries to fetch user two's project [404]
+
+	// User two tries to fetch user one [404]
+	await fetchUserById(userTwo.token, userOne.id, 404)
+
+	// *** User two tries to fetch user one's project [404]
+
+	// User one unblocks user two
+	await unblockUser(userOne.token, userTwo.id, 200)
+
+	// User one should have one blocked member
+	const { blocked_members: blocked_members2 } = await User.query().findById(userOne.id).eager('blocked_members')
+	expect(blocked_members2.length).toBe(1)
+	expect(blocked_members2[0].id).toBe(userThree.id)
+
+	// *** User one fetches user two's project [200]
+
+	// *** User two fetches user one's project [200]
+
+	// User fetches user two [200]
+	const fetchedUserTwo = await fetchUserById(userOne.token, userTwo.id, 200)
+	expect(fetchedUserTwo.user.id).toBe(userTwo.id)
+	expect(fetchedUserTwo.user.name).toBe(userTwo.name)
+	expect(fetchedUserTwo.user.email).toBe(userTwo.email)
+
+	// User two fetches user one [200]
+	const fetchedUserOne = await fetchUserById(userTwo.token, userOne.id, 200)
+	expect(fetchedUserOne.user.id).toBe(userOne.id)
+	expect(fetchedUserOne.user.name).toBe(userOne.name)
+	expect(fetchedUserOne.user.email).toBe(userOne.email)
+})
+
