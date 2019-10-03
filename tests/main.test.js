@@ -9,6 +9,8 @@ const {
 	userThree,
 	userFour,
 	userFive,
+	initialProfileValuesUserOne,
+	initialProfileValuesUserTwo,
 	registerNewUser,
 	login, // new
 	checkCount, // new
@@ -120,8 +122,11 @@ test('Delete user', async () => {
 	// User two registers
 	await registerNewUser(userTwo, 201)
 
-	// *** User one populates profile, adding skills
-	// *** User two has no skills
+	// User one populates profile, adding skills
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['express', 'react'] }, userOne.token, 200)
+
+	// User two has one skill
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['express'] }, userTwo.token, 200)
 
 	// *** User one creates project 1
 
@@ -139,14 +144,22 @@ test('Delete user', async () => {
 	expect(users.length).toBe(1)
 	expect(users[0].id).toBe(userTwo.id)
 
-	// *** Checks skills count (has_skills)
+	// Checks skills count before user 2 is gone (has_skills)	
+	const skills1 = await Skill.query()
+	checkCount({ type: 'has_skills_count', arr: skills1, length: 1, values: { express: 1 } })
+
+	// *** Checks skills count before user 2 is gone (required_skills)	
 
 	await request(app)
 		.delete('/api/users')
 		.set('Authorization', `Bearer ${userTwo.token}`)
 		.expect(200)
 
-	// *** Check skills count (has_skills) after deleting both
+	// Check skills count (has_skills) after deleting both
+	const skills2 = await Skill.query()
+	checkCount({ type: 'has_skills_count', arr: skills2, length: 0 })
+
+	// *** Check skills count (required_skills) after deleting both
 })
 
 // @todo project
@@ -205,19 +218,6 @@ test('Block + unblock user + getUserById', async () => {
 
 test('User profile update + skills with has_skills check', async () => {
 	// User one populates profile 
-	const initialProfileValuesUserOne = {
-		location: 'user_one_location',
-		website: 'www.user_one.com',
-		bio: 'user_one biography.',
-		github: 'user_one_github',
-		youtube_link: 'user_one_youtube',
-		twitter: 'user_one_twitter',
-		facebook_link: 'user_one_facebook',
-		linkedin: 'user_one_linkedin',
-		instagram: '@user_one_github',
-		discord: '#user_one',
-	}
-
 	await populateProfile({ ...initialProfileValuesUserOne, skills: ['express', 'react'] }, userOne.token, 200)
 
 	// Check skills' count
@@ -233,19 +233,6 @@ test('User profile update + skills with has_skills check', async () => {
 	await registerNewUser(userTwo, 201)
 
 	// User two populates profile 
-	const initialProfileValuesUserTwo = {
-		location: 'user_two_location',
-		website: 'www.user_two.com',
-		bio: 'user_two biography.',
-		github: 'user_two_github',
-		youtube_link: 'user_two_youtube',
-		twitter: 'user_two_twitter',
-		facebook_link: 'user_two_facebook',
-		linkedin: 'user_two_linkedin',
-		instagram: '@user_two_github',
-		discord: '#user_two',
-	}
-
 	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['express', 'react'] }, userTwo.token, 200)
 
 	// Check user one and user two data

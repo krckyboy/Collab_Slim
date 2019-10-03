@@ -44,6 +44,31 @@ const userFive = {
 	id: ''
 }
 
+const initialProfileValuesUserOne = {
+	location: 'user_one_location',
+	website: 'www.user_one.com',
+	bio: 'user_one biography.',
+	github: 'user_one_github',
+	youtube_link: 'user_one_youtube',
+	twitter: 'user_one_twitter',
+	facebook_link: 'user_one_facebook',
+	linkedin: 'user_one_linkedin',
+	instagram: '@user_one_github',
+	discord: '#user_one',
+}
+const initialProfileValuesUserTwo = {
+	location: 'user_two_location',
+	website: 'www.user_two.com',
+	bio: 'user_two biography.',
+	github: 'user_two_github',
+	youtube_link: 'user_two_youtube',
+	twitter: 'user_two_twitter',
+	facebook_link: 'user_two_facebook',
+	linkedin: 'user_two_linkedin',
+	instagram: '@user_two_github',
+	discord: '#user_two',
+}
+
 async function registerNewUser(user, status = 201) {
 	const res = await request(app)
 		.post('/api/users')
@@ -105,13 +130,18 @@ async function populateProfile(profile, token, status = 200) {
 	return res.body
 }
 
+
 function checkCount({ type, arr, length, values }) {
+	// Check the length
+	expect(arr.length).toBe(length)
+
+	if (length === 0) {
+		return
+	}
+
 	const valuesAsArr = Object.entries(values)
 	const valueNames = Object.keys(values)
 	const namesFromArr = arr.map(el => el.name)
-
-	// Check the length
-	expect(arr.length).toBe(length)
 
 	// Check if the specified values exist - ex: check if "react" exists
 	valueNames.forEach(el => {
@@ -150,4 +180,6 @@ module.exports = {
 	populateProfile,
 	checkCount,
 	compareValues,
+	initialProfileValuesUserOne,
+	initialProfileValuesUserTwo,
 }
