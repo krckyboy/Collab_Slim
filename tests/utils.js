@@ -95,6 +95,47 @@ async function fetchUserById(token, userId, status = 200) {
 	return res.body
 }
 
+async function populateProfile(profile, token, status = 200) {
+	const res = await request(app)
+		.put('/api/users/profile')
+		.set('Authorization', `Bearer ${token}`)
+		.send({ ...profile })
+		.expect(status)
+
+	return res.body
+}
+
+function checkCount({ type, arr, length, values }) {
+	const valuesAsArr = Object.entries(values)
+	const valueNames = Object.keys(values)
+	const namesFromArr = arr.map(el => el.name)
+
+	// Check the length
+	expect(arr.length).toBe(length)
+
+	// Check if the specified values exist - ex: check if "react" exists
+	valueNames.forEach(el => {
+		expect(namesFromArr.includes(el)).toBe(true)
+	})
+
+	// Check each individual value count
+	valuesAsArr.forEach(el => {
+		const elFromArr = arr.find(elArr => el[0] === elArr.name)
+		expect(elFromArr[type]).toBe(el[1])
+	})
+}
+
+function compareValues({ obj, values }) {
+	const valuesAsArr = Object.entries(values)
+
+	// Check each individual value count
+	valuesAsArr.forEach(el => {
+		const valueFromObj = obj[[el[0]]]
+		const valueFromValues = el[1]
+		expect(valueFromObj).toBe(valueFromValues)
+	})
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -106,4 +147,7 @@ module.exports = {
 	blockUser,
 	unblockUser,
 	fetchUserById,
+	populateProfile,
+	checkCount,
+	compareValues,
 }

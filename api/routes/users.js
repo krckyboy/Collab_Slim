@@ -49,9 +49,9 @@ router.get('/notifications', auth, require('../controllers/users/fetchLoggedUser
 // Private 
 router.get('/:user_id', auth, require('../controllers/users/getUserById'))
 
-// @route 	PUT api/users/user
-// @desc 	Update user - including skills that a user has
+// @route 	PUT api/users/
+// @desc 	Update profile of a user. If key value pairs are ommited from the client, null is set for those values. If values are not ommited, but are not string, 400 is triggered.
 // @access 	Private
-router.put('/', auth, require('../controllers/users/updateProfile'))
+router.put('/profile', auth, require('../controllers/users/updateProfile'))
 
 module.exports = router
