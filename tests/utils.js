@@ -93,7 +93,6 @@ const projectUserTwo2 = {
 	url: 'www.user_two_project_2.com'
 }
 
-
 function checkCount({ type, arr, length, values }) {
 	// Check the length
 	expect(arr.length).toBe(length)
@@ -218,6 +217,15 @@ async function unarchiveProject(token, projectId, status = 200) {
 	return res.body
 }
 
+async function fetchProjectById(token, projectId, status = 200) {
+	const res = await request(app)
+		.get(`/api/projects/${projectId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -241,4 +249,5 @@ module.exports = {
 	createProject,
 	archiveProject,
 	unarchiveProject,
+	fetchProjectById,
 }

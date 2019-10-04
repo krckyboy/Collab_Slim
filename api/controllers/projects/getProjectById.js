@@ -7,23 +7,17 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(req.params.project_id).eager('[owner, required_skills, project_members]')
+		const project = await Project.query().findById(req.params.project_id).eager('[owner, required_skills, has_tags]')
 
 		// Returns true if user has blocked targetId, otherwise false
-		if (await checkIfBlocked(project.owner_id, req.user.id)) {
+		// If logged user has blocked the project owner, also 404
+		if (await checkIfBlocked(project.owner_id, req.user.id) || await checkIfBlocked(req.user.id, project.owner_id)) {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		// If logged user has blocked the project owner
-		if (await checkIfBlocked(req.user.id, project.owner_id)) {
-			return res.status(404).json({ msg: 'You need to unblock the owner to see the project!' })
-		}
-
-		return res.json(project)
+		return res.json({ project })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')
 	}
 }
-
-// how to get required skills

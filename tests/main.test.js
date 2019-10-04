@@ -121,8 +121,7 @@ test('Login [200, 2x 400]', async () => {
 	expect(responseLoginFail2.msg).toBe('Invalid credentials!')
 })
 
-// @todo skills (has_skills + required_skills), project
-test('Delete user', async () => {
+test('Delete user + check skills, tags, projects', async () => {
 	// User two registers
 	await registerNewUser(userTwo, 201)
 
@@ -142,7 +141,7 @@ test('Delete user', async () => {
 	await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userTwo.token, 201)
 
 	// User one archives project 1
-	await archiveProject(userOne.token, projectUserOne.newProject.id, 200)
+	await archiveProject(userOne.token, projectUserOne.project.id, 200)
 
 	await request(app)
 		.delete('/api/users')
@@ -184,15 +183,16 @@ test('Delete user', async () => {
 	expect(tags2.length).toBe(0)
 })
 
-// @todo project
-test('Block + unblock user + getUserById', async () => {
+test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	// User two, three registers
 	await registerNewUser(userTwo, 201)
 	await registerNewUser(userThree, 201)
 
-	// *** User one creates a project
+	// User one creates a project
+	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
 
-	// *** User two creates a project
+	// User two creates a project
+	const projectUserTwo = await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userTwo.token, 201)
 
 	// User one blocks user two and user three
 	await blockUser(userOne.token, userTwo.id, 200)
@@ -206,12 +206,17 @@ test('Block + unblock user + getUserById', async () => {
 	// User one tries to fetch user two [400]
 	await fetchUserById(userOne.token, userTwo.id, 400)
 
-	// *** User one tries to fetch user two's project [404]
+	// User one tries to fetch user three [400]
+	await fetchUserById(userOne.token, userThree.id, 400)
+
+	// User one tries to fetch user two's project [404]
+	await fetchProjectById(userOne.token, projectUserTwo.project.id, 404)
 
 	// User two tries to fetch user one [404]
 	await fetchUserById(userTwo.token, userOne.id, 404)
 
-	// *** User two tries to fetch user one's project [404]
+	// User two tries to fetch user one's project [404]
+	await fetchProjectById(userTwo.token, projectUserOne.project.id, 404)
 
 	// User one unblocks user two
 	await unblockUser(userOne.token, userTwo.id, 200)
@@ -221,11 +226,21 @@ test('Block + unblock user + getUserById', async () => {
 	expect(blocked_members2.length).toBe(1)
 	expect(blocked_members2[0].id).toBe(userThree.id)
 
-	// *** User one fetches user two's project [200]
+	// User one fetches user two's project [200]
+	const projectUserTwoThatUserOneFetched = await fetchProjectById(userOne.token, projectUserTwo.project.id, 200)
+	compareValues({
+		obj: projectUserTwoThatUserOneFetched.project,
+		values: { ...projectUserTwo1 }
+	})
 
-	// *** User two fetches user one's project [200]
+	// User two fetches user one's project [200]
+	const projectUserOneThatUserTwoFetched = await fetchProjectById(userTwo.token, projectUserOne.project.id, 200)
+	compareValues({
+		obj: projectUserOneThatUserTwoFetched.project,
+		values: { ...projectUserOne1 }
+	})
 
-	// User fetches user two [200]
+	// User one fetches user two [200]
 	const fetchedUserTwo = await fetchUserById(userOne.token, userTwo.id, 200)
 	expect(fetchedUserTwo.user.id).toBe(userTwo.id)
 	expect(fetchedUserTwo.user.name).toBe(userTwo.name)
@@ -387,8 +402,6 @@ test('User profile update + skills with has_skills check', async () => {
 test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// User one creates project 1
 	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['e-commerce'] }, userOne.token, 201)
-
-
 })
 
 

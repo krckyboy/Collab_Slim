@@ -74,7 +74,7 @@ router.patch('/:project_id/archive', auth, require('../controllers/projects/arch
 // @route 	GET api/projects/:project_id
 // @desc 	Fetch project by id
 // @access 	Private
-// router.get('/:project_id/', auth, require('../controllers/projects/getProjectById'))
+router.get('/:project_id/', auth, require('../controllers/projects/getProjectById'))
 
 // @route 	GET api/projects/user/:user_id
 // @desc 	Fetch user's projects

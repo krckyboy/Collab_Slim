@@ -44,15 +44,15 @@ module.exports = async (req, res) => {
 			unrelate: ['required_skills', 'has_tags']
 		}
 
-		const newProject = await Project.query().upsertGraphAndFetch(graphData, options)
+		const project = await Project.query().upsertGraphAndFetch(graphData, options)
 
 		const skillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...skillsWithIds], type: 'required_skills' })
 		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
 
-		newProject.has_tags = tagsWithCountUpdated
-		newProject.required_skills = skillsWithCountUpdated
+		project.has_tags = tagsWithCountUpdated
+		project.required_skills = skillsWithCountUpdated
 
-		res.status(201).json({ newProject })
+		res.status(201).json({ project })
 		// @todo images
 	} catch (err) {
 		console.error(err)
