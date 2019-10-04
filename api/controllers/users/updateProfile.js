@@ -10,7 +10,7 @@ module.exports = async (req, res) => {
 
 	// Returns an object with key value pairs related to profileFields
 	const profileObject = fetchDataFromKeys(profileFields, req)
-	let skills = req.body.skills
+	let { skills } = req.body
 
 	// Check if everything is a string or null in the object
 	if (!checkIfObjectValuesAreOfSpecificType(profileObject, 'string')) {

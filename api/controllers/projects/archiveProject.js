@@ -1,6 +1,5 @@
 const Project = require('../../../db/models/Project')
 const createEvent = require('../utils/events/createAnEvent')
-const createNotificationForProjectMembers = require('./utils/createNotificationForProjectMembers')
 
 module.exports = async (req, res) => {
 	try {
@@ -10,7 +9,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(projectId).eager('project_members')
+		const project = await Project.query().findById(projectId)
 
 		if (!project) {
 			return res.status(404).json({ msg: 'No project found!' })
@@ -30,20 +29,20 @@ module.exports = async (req, res) => {
 			archived: true
 		})
 
-		// Create an event for finalizing
-		const event = await createEvent({ type: 'project_archived', userId: req.user.id, projectId: project.id })
+		// @todo Unrelate required_skills  
 
-		// Also notify all members
-		await createNotificationForProjectMembers({
-			event,
-			projectOwnerId: project.owner_id,
-			projectMembers: project.project_members,
-			skipNotificationForUserId: req.user.id
-		})
+		// Update skill count
+
+		// @todo Unrelate tags and update count
+
+		// Update tag count
+
+		// Create an event for finalizing
+		await createEvent({ type: 'project_archived', userId: req.user.id, projectId: project.id })
 
 		project.archived = true
 
-		return res.json(project)
+		return res.json({ project })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

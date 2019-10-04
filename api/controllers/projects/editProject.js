@@ -1,6 +1,5 @@
 const Project = require('../../../db/models/Project')
 const fetchDataFromKeys = require('../utils/fetchDataFromKeys')
-const filterArrayStrings = require('../utils/filterArrayStrings')
 const { validationResult } = require('express-validator/check')
 const insertMissingTagsToDb = require('../utils/tags/insertMissingTagsToDb')
 const updateCountTag = require('../utils/tags/updateCountTag')

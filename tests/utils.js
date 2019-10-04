@@ -69,6 +69,66 @@ const initialProfileValuesUserTwo = {
 	discord: '#user_two',
 }
 
+const projectUserOne1 = {
+	name: 'user_one_project',
+	description: 'user_one_project_description',
+	url: 'www.user_one_project.com'
+}
+
+const projectUserOne2 = {
+	name: 'user_one_project_2',
+	description: 'user_one_project_description_2',
+	url: 'www.user_one_project_2.com'
+}
+
+const projectUserTwo1 = {
+	name: 'user_two_project',
+	description: 'user_two_project_description',
+	url: 'www.user_two_project.com'
+}
+
+const projectUserTwo2 = {
+	name: 'user_two_project_2',
+	description: 'user_two_project_description_2',
+	url: 'www.user_two_project_2.com'
+}
+
+
+function checkCount({ type, arr, length, values }) {
+	// Check the length
+	expect(arr.length).toBe(length)
+
+	if (length === 0) {
+		return
+	}
+
+	const valuesAsArr = Object.entries(values)
+	const valueNames = Object.keys(values)
+	const namesFromArr = arr.map(el => el.name)
+
+	// Check if the specified values exist - ex: check if "react" exists
+	valueNames.forEach(el => {
+		expect(namesFromArr.includes(el)).toBe(true)
+	})
+
+	// Check each individual value count
+	valuesAsArr.forEach(el => {
+		const elFromArr = arr.find(elArr => el[0] === elArr.name)
+		expect(elFromArr[type]).toBe(el[1])
+	})
+}
+
+function compareValues({ obj, values }) {
+	const valuesAsArr = Object.entries(values)
+
+	// Check each individual value count
+	valuesAsArr.forEach(el => {
+		const valueFromObj = obj[[el[0]]]
+		const valueFromValues = el[1]
+		expect(valueFromObj).toBe(valueFromValues)
+	})
+}
+
 async function registerNewUser(user, status = 201) {
 	const res = await request(app)
 		.post('/api/users')
@@ -130,40 +190,32 @@ async function populateProfile(profile, token, status = 200) {
 	return res.body
 }
 
+async function createProject(project, token, status = 201) {
+	const res = await request(app)
+		.post('/api/projects')
+		.set('Authorization', `Bearer ${token}`)
+		.send({ ...project })
+		.expect(status)
 
-function checkCount({ type, arr, length, values }) {
-	// Check the length
-	expect(arr.length).toBe(length)
-
-	if (length === 0) {
-		return
-	}
-
-	const valuesAsArr = Object.entries(values)
-	const valueNames = Object.keys(values)
-	const namesFromArr = arr.map(el => el.name)
-
-	// Check if the specified values exist - ex: check if "react" exists
-	valueNames.forEach(el => {
-		expect(namesFromArr.includes(el)).toBe(true)
-	})
-
-	// Check each individual value count
-	valuesAsArr.forEach(el => {
-		const elFromArr = arr.find(elArr => el[0] === elArr.name)
-		expect(elFromArr[type]).toBe(el[1])
-	})
+	return res.body
 }
 
-function compareValues({ obj, values }) {
-	const valuesAsArr = Object.entries(values)
+async function archiveProject(token, projectId, status = 201) {
+	const res = await request(app)
+		.patch(`/api/projects/${projectId}/archive`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
 
-	// Check each individual value count
-	valuesAsArr.forEach(el => {
-		const valueFromObj = obj[[el[0]]]
-		const valueFromValues = el[1]
-		expect(valueFromObj).toBe(valueFromValues)
-	})
+	return res.body
+}
+
+async function unarchiveProject(token, projectId, status = 200) {
+	const res = await request(app)
+		.patch(`/api/projects/${projectId}/unarchive`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
 }
 
 module.exports = {
@@ -182,4 +234,11 @@ module.exports = {
 	compareValues,
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
+	projectUserOne1,
+	projectUserOne2,
+	projectUserTwo1,
+	projectUserTwo2,
+	createProject,
+	archiveProject,
+	unarchiveProject,
 }

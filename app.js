@@ -12,7 +12,7 @@ app.get('/', (req, res) => {
 
 // Routers
 app.use('/api/users', require('./api/routes/users'))
-app.use('/api/projects', require('./api/routes/project'))
+app.use('/api/projects', require('./api/routes/projects'))
 /*
 app.use('/api/profile', require('./api/routes/profile'))
 app.use('/api/skills', require('./api/routes/skills'))

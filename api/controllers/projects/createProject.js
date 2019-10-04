@@ -1,12 +1,11 @@
 const Project = require('../../../db/models/Project')
 const fetchDataFromKeys = require('../utils/fetchDataFromKeys')
-const filterArrayStrings = require('../utils/filterArrayStrings')
 const { validationResult } = require('express-validator/check')
 const insertMissingTagsToDb = require('../utils/tags/insertMissingTagsToDb')
 const updateCountTag = require('../utils/tags/updateCountTag')
 const insertMissingSkillsToDb = require('../utils/skills/insertMissingSkillsToDb')
 const updateCountSkills = require('../utils/skills/updateCountSkills')
-const checkIfObjectValuesAreOfSpecificType = require('../utils/checkIfObjectValuesAreOfSpecificType')
+const validateSkillsAndTags = require('./utils/validateSkillsAndTags')
 
 module.exports = async (req, res) => {
 	const errors = validationResult(req)
@@ -15,14 +14,13 @@ module.exports = async (req, res) => {
 		return res.status(400).json({ errors: errors.array() })
 	}
 
-	const projectFields = ['name', 'description', 'url']
-	const { skills } = req.body
-	const { tags } = req.body
+	let { skills } = req.body
+	let { tags } = req.body
 
+	const projectFields = ['name', 'description', 'url']
 	const projectObject = fetchDataFromKeys(projectFields, req)
 
-	const skillsArray = filterArrayStrings(skills)
-	const tagsArray = filterArrayStrings(tags)
+	const { skills: skillsArray, tags: tagsArray } = validateSkillsAndTags({ skills, tags, res })
 	try {
 		const existingProjectsOfUser = await Project.query().where({ owner_id: req.user.id })
 		const duplicateProject = existingProjectsOfUser.find(project => project.name === projectObject.name)
@@ -35,9 +33,8 @@ module.exports = async (req, res) => {
 		const tagsWithIds = await insertMissingTagsToDb(tagsArray)
 
 		const graphData = {
-			...projectObject, // Key value pairs such as: bio, location, website, etc.
+			...projectObject, // Key value pairs such as: name, description, url
 			owner_id: req.user.id,
-			accepting_members: true,
 			required_skills: skillsWithIds,
 			has_tags: tagsWithIds
 		}
@@ -55,7 +52,7 @@ module.exports = async (req, res) => {
 		newProject.has_tags = tagsWithCountUpdated
 		newProject.required_skills = skillsWithCountUpdated
 
-		res.status(201).json(newProject)
+		res.status(201).json({ newProject })
 		// @todo images
 	} catch (err) {
 		console.error(err)

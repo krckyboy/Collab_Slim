@@ -49,7 +49,7 @@ router.post('/:project_id/add_image',
 // @route 	PUT api/projects/:project_id
 // @desc 	Edit a project
 // @access 	Private
-router.put('/:project_id', [auth, createProjectValidation], require('../controllers/projects/editProject'))
+// router.put('/:project_id', [auth, createProjectValidation], require('../controllers/projects/editProject'))
 
 // @route 	PUT api/projects/:project_id/archive
 // @desc 	Archive a project
@@ -59,32 +59,31 @@ router.patch('/:project_id/archive', auth, require('../controllers/projects/arch
 // @route 	PUT api/projects/:project_id/unarchive
 // @desc 	Unarchive a project
 // @access 	Private
-router.patch('/:project_id/unarchive', auth, require('../controllers/projects/unarchiveProject'))
+// router.patch('/:project_id/unarchive', auth, require('../controllers/projects/unarchiveProject'))
 
 // @route 	GET api/projects/:project_id/potentialUsers
 // @desc 	Fetch users with the required skills of the project
 // @access 	Private
-router.get('/:project_id/potentialUsers', auth, require('../controllers/users/fetchUsersWithSkillsForProject'))
+// router.get('/:project_id/potentialUsers', auth, require('../controllers/users/fetchUsersWithSkillsForProject'))
 
-// @todo move this to users route
 // @route 	GET api/projects/potentialProjects
 // @desc 	Fetch projects with the required skills that logged user has
 // @access 	Private
-router.get('/potentialProjects', auth, require('../controllers/projects/fetchProjectsWithMySkills'))
+// router.get('/potentialProjects', auth, require('../controllers/projects/fetchProjectsWithMySkills'))
 
 // @route 	GET api/projects/:project_id
 // @desc 	Fetch project by id
 // @access 	Private
-router.get('/:project_id/', auth, require('../controllers/projects/getProjectById'))
+// router.get('/:project_id/', auth, require('../controllers/projects/getProjectById'))
 
 // @route 	GET api/projects/user/:user_id
 // @desc 	Fetch user's projects
 // @access 	Public
-router.get('/user/:user_id', require('../controllers/projects/fetchUsersProjects'))
+// router.get('/user/:user_id', require('../controllers/projects/fetchUsersProjects'))
 
 // @route 	DELETE api/projects/:project_id
 // @desc 	Delete project
 // @access 	Private
-router.delete('/:project_id', auth, require('../controllers/projects/deleteProject'))
+// router.delete('/:project_id', auth, require('../controllers/projects/deleteProject'))
 
 module.exports = router

@@ -77,7 +77,7 @@ exports.up = knex => {
 				.unsigned()
 				.references('id')
 				.inTable('users')
-				.onDelete('SET NULL')
+				.onDelete('CASCADE')
 				.index()
 		})
 		.createTable('required_skills', table => {
