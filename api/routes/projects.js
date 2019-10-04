@@ -27,7 +27,7 @@ router.get('/', require('../controllers/projects/getAllProjects'))
 // @route 	POST api/projects 
 // @desc 	Create a project
 // @access 	Private
-router.post('/', auth, createProjectValidation, require('../controllers/projects/createProject'))
+router.post('/', [auth, createProjectValidation], require('../controllers/projects/createProject'))
 
 // @route 	POST api/projects/:project_id/add_image
 // @desc 	Add an image to project
@@ -49,7 +49,7 @@ router.post('/:project_id/add_image',
 // @route 	PUT api/projects/:project_id
 // @desc 	Edit a project
 // @access 	Private
-// router.put('/:project_id', [auth, createProjectValidation], require('../controllers/projects/editProject'))
+router.put('/:project_id', [auth, createProjectValidation], require('../controllers/projects/editProject'))
 
 // @route 	PUT api/projects/:project_id/archive
 // @desc 	Archive a project

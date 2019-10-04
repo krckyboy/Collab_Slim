@@ -68,7 +68,7 @@ afterAll(async () => {
 	await Event.query().delete()
 	await Notification.query().delete()
 })
-
+/*
 test('Registration [201, 400]', async () => {
 	await registerNewUser({
 		name: 'dusantest',
@@ -398,10 +398,110 @@ test('User profile update + skills with has_skills check', async () => {
 	}, userOne.token,
 		400)
 })
-
+*/
 test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// User one creates project 1
-	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['e-commerce'] }, userOne.token, 201)
+	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
+
+	// Check if skills exist properly with count
+	const skills1 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills1, length: 2, values: { node: 1, mongodb: 1 } })
+
+	// Check if tags exist properly with count
+	const tags1 = await Tag.query()
+	checkCount({ type: 'count', arr: tags1, length: 1, values: { ecommerce: 1 } })
+
+	// User one edits project 1, removing mongodb, adding express and replacing tag
+	const projectUserOneEdited = {
+		name: 'user_one_project_edited',
+		description: 'user_one_project_description_edited',
+		url: 'www.user_one_project.com_edited'
+	}
+	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['node', 'express'], tags: ['wordpress'] }, userOne.token, 200)
+
+	// Checking if it's successfully edited
+	const projectUserOneFetched1 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	compareValues({
+		obj: projectUserOneFetched1.project,
+		values: { ...projectUserOneEdited }
+	})
+
+	// Check if skills are updated properly
+	const skills2 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills2, length: 2, values: { node: 1, express: 1 } })
+
+	// Check if tags are updated properly
+	const tags2 = await Tag.query()
+	checkCount({ type: 'count', arr: tags2, length: 1, values: { wordpress: 1 } })
+
+	// User one edits project once again, sending empty array for skills and array
+	await editProject(projectUserOne.project.id, { ...projectUserOne1, skills: [], tags: [] }, userOne.token, 200)
+
+	// Check if skills are updated properly
+	const skills3 = await Skill.query()
+	expect(skills3.length).toBe(0)
+
+	// Check if tags are updated properly
+	const tags3 = await Tag.query()
+	expect(tags3.length).toBe(0)
+
+	// Check if project updated
+	const projectUserOneFetched2 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	compareValues({
+		obj: projectUserOneFetched2.project,
+		values: { ...projectUserOne1 }
+	})
+
+	// User one edits project just to get back the skills and tags
+	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
+
+	// Check if skills are updated properly
+	const skills4 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills4, length: 2, values: { sql: 1, express: 1 } })
+
+	// Check if tags are updated properly
+	const tags4 = await Tag.query()
+	checkCount({ type: 'count', arr: tags4, length: 1, values: { easy: 1 } })
+
+	// User one edits project once again, sending no values for skills and array
+	await editProject(projectUserOne.project.id, { ...projectUserOne1, }, userOne.token, 200)
+
+	// Check if skills are updated properly
+	const skills5 = await Skill.query()
+	expect(skills5.length).toBe(0)
+
+	// Check if tags are updated properly
+	const tags5 = await Tag.query()
+	expect(tags5.length).toBe(0)
+
+	// User one edits project just to get back the skills and tags
+	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
+
+	// Check if project updated
+	const projectUserOneFetched3 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	compareValues({
+		obj: projectUserOneFetched3.project,
+		values: { ...projectUserOneEdited }
+	})
+
+	// Check if skills are updated properly
+	const skills6 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills6, length: 2, values: { sql: 1, express: 1 } })
+
+	// Check if tags are updated properly
+	const tags6 = await Tag.query()
+	checkCount({ type: 'count', arr: tags6, length: 1, values: { easy: 1 } })
+
+	// User archives project
+	await archiveProject(userOne.token, projectUserOne.project.id, 200)
+
+	// Check if skills are updated properly
+	const skills7 = await Skill.query()
+	expect(skills7.length).toBe(0)
+
+	// Check if tags are updated properly
+	const tags7 = await Tag.query()
+	expect(tags7.length).toBe(0)
 })
 
 

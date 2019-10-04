@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken')
+const User = require('../../db/models/User')
 
-const auth = function (req, res, next) {
+const auth = async function (req, res, next) {
 	try {
 		const token = req.header('Authorization').replace('Bearer ', '')
 
@@ -9,9 +10,15 @@ const auth = function (req, res, next) {
 		}
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET)
-		
-		req.user = decoded.user
-		
+
+		const user = await User.query().findById(decoded.user.id)
+
+		if (!user) {
+			res.status(401).json({ msg: 'Token is not valid' })
+		}
+
+		req.user = user
+
 		next()
 	} catch (err) {
 		res.status(401).json({ msg: 'Token is not valid' })

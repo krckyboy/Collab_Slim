@@ -226,6 +226,16 @@ async function fetchProjectById(token, projectId, status = 200) {
 	return res.body
 }
 
+async function editProject(projectId, projectData, token, status = 200) {
+	const res = await request(app)
+		.put(`/api/projects/${projectId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.send({ ...projectData })
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -250,4 +260,5 @@ module.exports = {
 	archiveProject,
 	unarchiveProject,
 	fetchProjectById,
+	editProject,
 }

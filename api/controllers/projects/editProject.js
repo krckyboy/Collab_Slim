@@ -5,6 +5,7 @@ const insertMissingTagsToDb = require('../utils/tags/insertMissingTagsToDb')
 const updateCountTag = require('../utils/tags/updateCountTag')
 const insertMissingSkillsToDb = require('../utils/skills/insertMissingSkillsToDb')
 const updateCountSkills = require('../utils/skills/updateCountSkills')
+const validateSkillsAndTags = require('./utils/validateSkillsAndTags')
 
 module.exports = async (req, res) => {
 	const errors = validationResult(req)
@@ -28,20 +29,26 @@ module.exports = async (req, res) => {
 		return res.status(404).json({ msg: 'No project found!' })
 	}
 
-	const projectFields = ['name', 'description', 'accepting_members']
-	const { skills } = req.body
-	const { tags } = req.body
-	
+	let { skills } = req.body
+	let { tags } = req.body
+
+	const projectFields = ['name', 'description', 'url']
 	const projectObject = fetchDataFromKeys(projectFields, req)
 
-	const skillsArray = filterArrayStrings(skills)
-	const tagsArray = filterArrayStrings(tags)
+	const { skills: skillsArray, tags: tagsArray } = validateSkillsAndTags({ skills, tags, res })
 	try {
+		const existingProjectsOfUser = await Project.query().where({ owner_id: req.user.id })
+		const duplicateProject = existingProjectsOfUser.find(project => project.name === projectObject.name)
+
+		if (duplicateProject) {
+			return res.status(400).json({ msg: 'You already have a project under that name!' })
+		}
+
 		const skillsWithIds = await insertMissingSkillsToDb(skillsArray)
 		const tagsWithIds = await insertMissingTagsToDb(tagsArray)
 
 		const graphData = {
-			...projectObject, // Key value pairs such as: bio, location, website, etc.
+			...projectObject, // Key value pairs such as: name, description, url
 			owner_id: req.user.id,
 			required_skills: skillsWithIds,
 			has_tags: tagsWithIds,
@@ -53,20 +60,22 @@ module.exports = async (req, res) => {
 			unrelate: ['required_skills', 'has_tags']
 		}
 
-		const newProject = await Project.query().upsertGraphAndFetch(graphData, options)
+		const updatedProject = await Project.query().upsertGraphAndFetch(graphData, options)
 
 		const oldSkillsOnProject = project.required_skills
-		const oldTags = project.has_tags
+		const oldTagsOnProject = project.has_tags
 
 		await updateCountSkills({ skillsWithIds: [...oldSkillsOnProject], type: 'required_skills' })
-		await updateCountTag({ tagsWithIds: [...oldTags] })
-		const newSkillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...skillsWithIds], type: 'required_skills' })
-		const newTagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
+		await updateCountTag({ tagsWithIds: [...oldTagsOnProject] })
 
-		newProject.has_tags = newTagsWithCountUpdated
-		newProject.required_skills = newSkillsWithCountUpdated
+		const skillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...skillsWithIds], type: 'required_skills' })
+		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
 
-		res.status(200).json(newProject)
+		updatedProject.has_tags = tagsWithCountUpdated
+		updatedProject.required_skills = skillsWithCountUpdated
+
+		res.status(200).json({ updatedProject })
+		// @todo images
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')
