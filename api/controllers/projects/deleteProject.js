@@ -7,13 +7,13 @@ module.exports = async (req, res) => {
 		const projectId = parseInt(req.params.project_id)
 
 		if (isNaN(projectId)) {
-			return res.status(404).json({msg: 'No project found!'})
+			return res.status(404).json({ msg: 'No project found!' })
 		}
 
 		const project = await Project.query().findById(projectId).eager('[required_skills, has_tags]')
 
 		if (!project) {
-			return res.status(404).json({msg: 'No project found!'})
+			return res.status(404).json({ msg: 'No project found!' })
 		}
 
 		if (req.user.id !== project.owner_id) {

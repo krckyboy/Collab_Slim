@@ -1,6 +1,7 @@
 const Project = require('../../../db/models/Project')
 const createEvent = require('../utils/events/createAnEvent')
-const createNotificationForProjectMembers = require('./utils/createNotificationForProjectMembers')
+const updateCountTag = require('../utils/tags/updateCountTag')
+const updateCountSkills = require('../utils/skills/updateCountSkills')
 
 module.exports = async (req, res) => {
 	try {
@@ -10,7 +11,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(projectId).eager('project_members')
+		const project = await Project.query().findById(projectId).eager('[required_skills, has_tags]')
 
 		if (!project) {
 			return res.status(404).json({ msg: 'No project found!' })
@@ -21,7 +22,7 @@ module.exports = async (req, res) => {
 			return res.status(401).json({ msg: 'You are not authorized to do that!' })
 		}
 
-		// Check if already archived
+		// Check if not archived
 		if (!project.archived) {
 			return res.status(400).json({ msg: 'Project is not archived in the first place!' })
 		}
@@ -30,20 +31,28 @@ module.exports = async (req, res) => {
 			archived: false
 		})
 
-		// Create an event for finalizing
-		const event = await createEvent({ type: 'project_unarchived', userId: req.user.id, projectId: project.id })
+		// In the relation required_skills, switch boolean "archived" to false
+		await project
+			.$relatedQuery('required_skills')
+			.patch({ archived: false })
 
-		// Also notify all members
-		await createNotificationForProjectMembers({
-			event,
-			projectOwnerId: project.owner_id,
-			projectMembers: project.project_members,
-			skipNotificationForUserId: req.user.id
-		})
+		// In the relation has_tags, switch boolean "archived" to false
+		await project
+			.$relatedQuery('has_tags')
+			.patch({ archived: false })
+
+		// Update skill count
+		await updateCountSkills({ skillsWithIds: [...project.required_skills], type: 'required_skills' })
+
+		// Update tag count
+		await updateCountTag({ tagsWithIds: [...project.has_tags] })
+
+		// Create an event for archiving
+		await createEvent({ type: 'project_unarchived', userId: req.user.id, projectId: project.id })
 
 		project.archived = false
 
-		return res.json(project)
+		return res.json({ project })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

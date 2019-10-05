@@ -236,6 +236,15 @@ async function editProject(projectId, projectData, token, status = 200) {
 	return res.body
 }
 
+async function deleteProject(projectId, token, status = 200) {
+	const res = await request(app)
+		.delete(`/api/projects/${projectId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -261,4 +270,5 @@ module.exports = {
 	unarchiveProject,
 	fetchProjectById,
 	editProject,
+	deleteProject,
 }

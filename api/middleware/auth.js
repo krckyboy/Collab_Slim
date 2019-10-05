@@ -14,7 +14,7 @@ const auth = async function (req, res, next) {
 		const user = await User.query().findById(decoded.user.id)
 
 		if (!user) {
-			res.status(401).json({ msg: 'Token is not valid' })
+			return res.status(401).json({ msg: 'Token is not valid' })
 		}
 
 		req.user = user

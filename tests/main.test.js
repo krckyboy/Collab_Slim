@@ -413,7 +413,7 @@ test('User profile update + skills with has_skills check', async () => {
 	checkCount({ type: 'has_skills_count', arr: skills7, length: 3, values: { react: 0, express: 0, node: 0 } })
 })
 
-test('/createP, /archiveP, /editP, /unarchiveP', async () => {
+test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	// User one creates project 1
 	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
 
@@ -515,6 +515,7 @@ test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
 	const expressSkill = projectUserOneFetched4.project.required_skills.find(skill => skill.name === 'express')
 	const sqlSkill = projectUserOneFetched4.project.required_skills.find(skill => skill.name === 'sql')
+
 	expect(projectUserOneFetched4.project.archived).toBe(true)
 	expect(projectUserOneFetched4.project.required_skills.length).toBe(2)
 	expect(projectUserOneFetched4.project.has_tags.length).toBe(1)
@@ -528,6 +529,70 @@ test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// Check if tags are updated properly
 	const tags7 = await Tag.query()
 	checkCount({ type: 'count', arr: tags7, length: 3, values: { easy: 0, wordpress: 0, ecommerce: 0 } })
+
+	// User two unarchives project
+	await unarchiveProject(userOne.token, projectUserOne.project.id, 200)
+
+	// Check skills
+	const skills8 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills8, length: 4, values: { sql: 1, express: 1, node: 0, mongodb: 0 } })
+
+	// Check tags
+	const tags8 = await Tag.query()
+	checkCount({ type: 'count', arr: tags8, length: 3, values: { easy: 1, wordpress: 0, ecommerce: 0 } })
+
+	// Check project data along with skills and tags
+	const projectUserOneFetched5 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const expressSkill2 = projectUserOneFetched5.project.required_skills.find(skill => skill.name === 'express')
+	const sqlSkill2 = projectUserOneFetched5.project.required_skills.find(skill => skill.name === 'sql')
+
+	expect(projectUserOneFetched5.project.archived).toBe(false)
+	expect(projectUserOneFetched5.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched5.project.has_tags.length).toBe(1)
+	expect(expressSkill2.archived).toBe(false)
+	expect(sqlSkill2.archived).toBe(false)
+
+	compareValues({
+		obj: projectUserOneFetched5.project,
+		values: { ...projectUserOneEdited }
+	})
+
+	// User one edits project again with different skills and tags
+	await editProject(projectUserOne.project.id, { ...projectUserOne1, skills: ['mongodb', 'python'], tags: ['easy', 'advanced'] }, userOne.token, 200)
+
+	// Check skills
+	const skills9 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills9, length: 5, values: { sql: 0, express: 0, node: 0, mongodb: 1, python: 1 } })
+
+	// Check tags
+	const tags9 = await Tag.query()
+	checkCount({ type: 'count', arr: tags9, length: 4, values: { easy: 1, wordpress: 0, ecommerce: 0, advanced: 1 } })
+
+	// Check project data along with skills and tags
+	const projectUserOneFetched6 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	expect(projectUserOneFetched6.project.archived).toBe(false)
+	expect(projectUserOneFetched6.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched6.project.has_tags.length).toBe(2)
+
+	compareValues({
+		obj: projectUserOneFetched6.project,
+		values: { ...projectUserOne1 }
+	})
+
+	// User one deletes project
+	await deleteProject(projectUserOne.project.id, userOne.token, 200)
+
+	// Check what happens with skills
+	const skills10 = await Skill.query()
+	checkCount({ type: 'required_skills_count', arr: skills10, length: 5, values: { sql: 0, express: 0, node: 0, mongodb: 0, python: 0 } })
+
+	// Check what happens with tags
+	const tags10 = await Tag.query()
+	checkCount({ type: 'count', arr: tags10, length: 4, values: { easy: 0, wordpress: 0, ecommerce: 0, advanced: 0 } })
+
+	// Check if project is actually deleted for real
+	const projects = await Project.query()
+	expect(projects.length).toBe(0)
 })
 
 
