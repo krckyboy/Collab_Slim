@@ -1,5 +1,7 @@
 const Project = require('../../../db/models/Project')
 const createEvent = require('../utils/events/createAnEvent')
+const updateCountTag = require('../utils/tags/updateCountTag')
+const updateCountSkills = require('../utils/skills/updateCountSkills')
 
 module.exports = async (req, res) => {
 	try {
@@ -9,7 +11,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(projectId)
+		const project = await Project.query().findById(projectId).eager('[required_skills, has_tags]')
 
 		if (!project) {
 			return res.status(404).json({ msg: 'No project found!' })
@@ -29,15 +31,23 @@ module.exports = async (req, res) => {
 			archived: true
 		})
 
-		// @todo Unrelate required_skills  
+		// @todo In the relation required_skills, switch boolean "archived" to true
+		await project
+			.$relatedQuery('required_skills')
+			.patch({ archived: true })
+
+		// @todo In the relation has_tags, switch boolean "archived" to true
+		await project
+			.$relatedQuery('has_tags')
+			.patch({ archived: true })
 
 		// Update skill count
-
-		// @todo Unrelate tags and update count
+		await updateCountSkills({ skillsWithIds: [...project.required_skills], type: 'required_skills' })
 
 		// Update tag count
+		await updateCountTag({ tagsWithIds: [...project.has_tags] })
 
-		// Create an event for finalizing
+		// Create an event for archiving
 		await createEvent({ type: 'project_archived', userId: req.user.id, projectId: project.id })
 
 		project.archived = true

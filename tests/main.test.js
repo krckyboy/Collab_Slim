@@ -495,6 +495,10 @@ test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// User archives project
 	await archiveProject(userOne.token, projectUserOne.project.id, 200)
 
+	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	expect(projectUserOneFetched4.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched4.project.has_tags.length).toBe(1)
+
 	// Check if skills are updated properly
 	const skills7 = await Skill.query()
 	expect(skills7.length).toBe(0)

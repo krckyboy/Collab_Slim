@@ -9,7 +9,7 @@ class Project extends Model {
 		const User = require('./User')
 		const Skill = require('./Skill')
 		const Tag = require('./Tag')
-		
+
 		return {
 			owner: {
 				relation: Model.BelongsToOneRelation,
@@ -26,7 +26,8 @@ class Project extends Model {
 					from: 'projects.id',
 					through: {
 						from: 'required_skills.project_id',
-						to: 'required_skills.skill_id'
+						to: 'required_skills.skill_id',
+						extra: ['archived'],
 					},
 					to: 'skills.id'
 				}
@@ -38,7 +39,8 @@ class Project extends Model {
 					from: 'projects.id',
 					through: {
 						from: 'has_tags.project_id',
-						to: 'has_tags.tag_id'
+						to: 'has_tags.tag_id',
+						extra: ['archived'],
 					},
 					to: 'tags.id'
 				}
