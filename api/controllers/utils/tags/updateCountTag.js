@@ -16,15 +16,12 @@ module.exports = async function updateCountTag({ tagsWithIds }) {
 				const count = await Tag.query()
 					.count('*')
 					.join('has_tags', 'has_tags.tag_id', 'tags.id')
+					.join('projects', 'projects.id', 'has_tags.project_id')
+					.where('projects.archived', '=', false)
 					.where('has_tags.tag_id', '=', tag.id)
 					.where('has_tags.archived', '=', false)
-				if (parseInt(count[0].count) === 0) {
-					await tag.$query().delete()
-					tag.count = 0
-					return await promiseReturnItem(tag)
-				} else {
-					return await tag.$query().updateAndFetch({ count: count[0].count }).where({ id: tag.id })
-				}
+
+				return await tag.$query().updateAndFetch({ count: count[0].count }).where({ id: tag.id })
 			})
 		)
 

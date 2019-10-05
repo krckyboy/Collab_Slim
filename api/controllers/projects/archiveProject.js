@@ -31,12 +31,12 @@ module.exports = async (req, res) => {
 			archived: true
 		})
 
-		// @todo In the relation required_skills, switch boolean "archived" to true
+		// In the relation required_skills, switch boolean "archived" to true
 		await project
 			.$relatedQuery('required_skills')
 			.patch({ archived: true })
 
-		// @todo In the relation has_tags, switch boolean "archived" to true
+		// In the relation has_tags, switch boolean "archived" to true
 		await project
 			.$relatedQuery('has_tags')
 			.patch({ archived: true })
