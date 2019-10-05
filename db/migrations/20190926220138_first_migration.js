@@ -84,7 +84,6 @@ exports.up = knex => {
 			table.increments('id').primary()
 			table.timestamps(true, true)
 			table.unique(['project_id', 'skill_id'])
-			table.boolean('archived').defaultTo(false)
 			table
 				.integer('project_id')
 				.unsigned()
@@ -130,7 +129,6 @@ exports.up = knex => {
 		.createTable('has_tags', table => {
 			table.increments('id').primary()
 			table.timestamps(true, true)
-			table.boolean('archived').defaultTo(false)
 			table
 				.integer('project_id')
 				.unsigned()

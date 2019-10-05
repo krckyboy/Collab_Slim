@@ -18,7 +18,6 @@ module.exports = async function updateCountSkills({ skillsWithIds, type }) {
 				.join('required_skills', 'required_skills.skill_id', 'skills.id')
 				.join('projects', 'projects.id', 'required_skills.project_id')
 				.where('required_skills.skill_id', '=', skill.id)
-				// .where('required_skills.archived', '=', false)
 				.where('projects.archived', '=', false)
 
 			const countHasSkillsNumber = parseInt(countHasSkills[0].count)

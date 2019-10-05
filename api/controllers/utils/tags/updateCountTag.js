@@ -19,7 +19,6 @@ module.exports = async function updateCountTag({ tagsWithIds }) {
 					.join('projects', 'projects.id', 'has_tags.project_id')
 					.where('projects.archived', '=', false)
 					.where('has_tags.tag_id', '=', tag.id)
-					.where('has_tags.archived', '=', false)
 
 				return await tag.$query().updateAndFetch({ count: count[0].count }).where({ id: tag.id })
 			})

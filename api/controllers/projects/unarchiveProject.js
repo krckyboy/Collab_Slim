@@ -31,16 +31,6 @@ module.exports = async (req, res) => {
 			archived: false
 		})
 
-		// In the relation required_skills, switch boolean "archived" to false
-		await project
-			.$relatedQuery('required_skills')
-			.patch({ archived: false })
-
-		// In the relation has_tags, switch boolean "archived" to false
-		await project
-			.$relatedQuery('has_tags')
-			.patch({ archived: false })
-
 		// Update skill count
 		await updateCountSkills({ skillsWithIds: [...project.required_skills], type: 'required_skills' })
 

@@ -27,7 +27,6 @@ class Project extends Model {
 					through: {
 						from: 'required_skills.project_id',
 						to: 'required_skills.skill_id',
-						extra: ['archived'],
 					},
 					to: 'skills.id'
 				}
@@ -40,7 +39,6 @@ class Project extends Model {
 					through: {
 						from: 'has_tags.project_id',
 						to: 'has_tags.tag_id',
-						extra: ['archived'],
 					},
 					to: 'tags.id'
 				}

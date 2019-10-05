@@ -21,7 +21,6 @@ const {
 	projectUserTwo2, // new
 	populateProfile,
 	createProject,
-	createPortfolioProject,
 	deleteProject,
 	getNotifications,
 	editProject,
@@ -513,14 +512,10 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	await archiveProject(userOne.token, projectUserOne.project.id, 200)
 
 	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
-	const expressSkill = projectUserOneFetched4.project.required_skills.find(skill => skill.name === 'express')
-	const sqlSkill = projectUserOneFetched4.project.required_skills.find(skill => skill.name === 'sql')
 
 	expect(projectUserOneFetched4.project.archived).toBe(true)
 	expect(projectUserOneFetched4.project.required_skills.length).toBe(2)
 	expect(projectUserOneFetched4.project.has_tags.length).toBe(1)
-	expect(expressSkill.archived).toBe(true)
-	expect(sqlSkill.archived).toBe(true)
 
 	// Check if skills are updated properly
 	const skills7 = await Skill.query()
@@ -543,14 +538,10 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 
 	// Check project data along with skills and tags
 	const projectUserOneFetched5 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
-	const expressSkill2 = projectUserOneFetched5.project.required_skills.find(skill => skill.name === 'express')
-	const sqlSkill2 = projectUserOneFetched5.project.required_skills.find(skill => skill.name === 'sql')
 
 	expect(projectUserOneFetched5.project.archived).toBe(false)
 	expect(projectUserOneFetched5.project.required_skills.length).toBe(2)
 	expect(projectUserOneFetched5.project.has_tags.length).toBe(1)
-	expect(expressSkill2.archived).toBe(false)
-	expect(sqlSkill2.archived).toBe(false)
 
 	compareValues({
 		obj: projectUserOneFetched5.project,
