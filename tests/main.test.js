@@ -319,7 +319,7 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// Check userOne's skills and count
 	const { has_skills: skilluserOneSkills2 } = await User.query().findById(userOne.id).eager('has_skills')
-	checkCount({ type: 'has_skills_count', arr: skilluserOneSkills2, length: 2, values: { node: 1, react: 2 } })
+	checkCount({ type: 'has_skills_count', arr: skilluserOneSkills2, length: 2, values: { node: 1, react: 2, } })
 
 	// Check skills' count once again
 	const skills3 = await Skill.query()
@@ -354,7 +354,7 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// Check skills, should only be user two's
 	const skills4 = await Skill.query()
-	checkCount({ type: 'has_skills_count', arr: skills4, length: 2, values: { react: 1, express: 1 } })
+	checkCount({ type: 'has_skills_count', arr: skills4, length: 3, values: { react: 1, express: 1, node: 0 } })
 
 	// User one adds skills again
 	await populateProfile({
@@ -368,7 +368,7 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// Check skills 
 	const skills5 = await Skill.query()
-	checkCount({ type: 'has_skills_count', arr: skills5, length: 2, values: { react: 2, express: 2 } })
+	checkCount({ type: 'has_skills_count', arr: skills5, length: 3, values: { react: 2, express: 2, node: 0 } })
 
 	// User one deletes his skills and adds old values for location and website
 	await populateProfile({
@@ -389,7 +389,7 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// Check skills generally
 	const skills6 = await Skill.query()
-	checkCount({ type: 'has_skills_count', arr: skills6, length: 2, values: { react: 1, express: 1 } })
+	checkCount({ type: 'has_skills_count', arr: skills6, length: 3, values: { react: 1, express: 1, node: 0 } })
 
 	// User one tries to update profile with invalid data
 	await populateProfile({
@@ -401,7 +401,18 @@ test('User profile update + skills with has_skills check', async () => {
 		website: 12321
 	}, userOne.token,
 		400)
+
+	// User two populates with no skills
+	await populateProfile({
+		...initialProfileValuesUserTwo,
+		skills: [] // removing both node and react
+	}, userTwo.token,
+		200)
+
+	const skills7 = await Skill.query()
+	checkCount({ type: 'has_skills_count', arr: skills7, length: 3, values: { react: 0, express: 0, node: 0 } })
 })
+
 test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// User one creates project 1
 	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
