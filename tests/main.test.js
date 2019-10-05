@@ -68,7 +68,7 @@ afterAll(async () => {
 	await Event.query().delete()
 	await Notification.query().delete()
 })
-/*
+
 test('Registration [201, 400]', async () => {
 	await registerNewUser({
 		name: 'dusantest',
@@ -149,9 +149,12 @@ test('Delete user + check skills, tags, projects', async () => {
 		.expect(200)
 
 	// Check the number of projects
-	const projects = await Project.query()
+	const projects = await Project.query().eager('[required_skills, has_tags]')
 	expect(projects.length).toBe(1)
 	expect(projects[0].owner_id).toBe(userTwo.id)
+	expect(projects[0].required_skills.length).toBe(2)
+	expect(projects[0].has_tags.length).toBe(1)
+	expect(projects[0].has_tags[0].name).toBe('ecommerce')
 
 	// Check if only user two exists
 	const users = await User.query()
@@ -160,14 +163,14 @@ test('Delete user + check skills, tags, projects', async () => {
 
 	// Checks skills count before user 2 is gone (has_skills)	
 	const skills1 = await Skill.query()
-	checkCount({ type: 'has_skills_count', arr: skills1, length: 3, values: { express: 1, node: 0, mongodb: 0 } })
+	checkCount({ type: 'has_skills_count', arr: skills1, length: 4, values: { express: 1, node: 0, mongodb: 0, react: 0 } })
 
 	// Checks skills count before user 2 is gone (required_skills)	
-	checkCount({ type: 'required_skills_count', arr: skills1, length: 3, values: { express: 0, node: 1, mongodb: 1 } })
+	checkCount({ type: 'required_skills_count', arr: skills1, length: 4, values: { express: 0, node: 1, mongodb: 1, react: 0 } })
 
 	// Checks tags count before user 2 is gone (has_skills)	
 	const tags1 = await Tag.query()
-	checkCount({ type: 'count', arr: tags1, length: 1, values: { ecommerce: 1 } })
+	checkCount({ type: 'count', arr: tags1, length: 2, values: { ecommerce: 1, easy: 0 } })
 
 	await request(app)
 		.delete('/api/users')
@@ -176,11 +179,12 @@ test('Delete user + check skills, tags, projects', async () => {
 
 	// Check skills after deleting both
 	const skills2 = await Skill.query()
-	expect(skills2.length).toBe(0)
+	checkCount({ type: 'has_skills_count', arr: skills2, length: 4, values: { express: 0, node: 0, mongodb: 0, react: 0 } })
+	checkCount({ type: 'required_skills_count', arr: skills2, length: 4, values: { express: 0, node: 0, mongodb: 0, react: 0 } })
 
 	// Check skills after deleting both
 	const tags2 = await Tag.query()
-	expect(tags2.length).toBe(0)
+	checkCount({ type: 'count', arr: tags2, length: 2, values: { ecommerce: 0, easy: 0 } })
 })
 
 test('Block + unblock user + getUserById + fetchProjectById', async () => {
@@ -398,7 +402,6 @@ test('User profile update + skills with has_skills check', async () => {
 	}, userOne.token,
 		400)
 })
-*/
 test('/createP, /archiveP, /editP, /unarchiveP', async () => {
 	// User one creates project 1
 	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
