@@ -586,4 +586,85 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	expect(projects.length).toBe(0)
 })
 
+test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMySkills', async () => {
+	// User two registers
+	// User three registers
+	// User four registers
 
+	// User one updates profile
+	// User two updates profile
+	// User three updates profile
+	// User four updates profile
+
+	// User one creates a project 
+	// SKILLS *** *** ***
+
+	// User one creates a project 
+	// SKILLS *** *** 
+
+	// User two creates a project
+	// SKILLS *** *** ***
+
+	// User three creates a project
+	// SKILLS *** *** 
+
+	// User four creates a project
+	// SKILLS *** ***
+
+	// User one blocks user three
+	// User one can't fetch user three's projects
+	// User one unblocks user three
+
+	// User two blocks user one
+	// User one cannot fetch user two's projects
+	// User two unblocks user one
+
+	// User one fetches projects with his skills
+	// Check if the number is correct and the order is good, make sure he doesn't fetch his own projects
+
+	// User one updates his profile
+	// User one fetches projects with his skills, check if correct
+
+	// User one fetches users with required skills, check if correct and order good
+	// User one blocks user two
+	// User one fetches users with required skills, check if not fetching user two
+	
+	// User one unblocks user two
+	// User two blocks user one 
+	// User one fetches users with required skills, check if not fetching user two
+	// User two unblocks user one
+
+	// User one fetches projects with required skills, check if all good
+
+	// User one fetches users for his project
+	// Check if all good and if the order is good
+
+	// User one blocks user two
+
+	// User one fetches users for his project
+	// Check if not fetching user two
+	
+	// User one unblocks user two
+	// User two blocks user one
+
+	// User one fetches users for his project
+	// Check if not fetching user two
+	
+	// User two unblocks user one
+	
+	// User one fetches users for his projects
+	// Check if all good and fetching user two
+
+	// User two updates profile, removing skills
+	
+	// User one fetches users for his project
+	// Check if not fetching user two
+
+	// User two updates his profile again, switching it back to how it used to be
+
+	// User one updates his project, tweaking skills
+	
+	// User one fetches users for his project
+	// Check if all is good
+
+})
