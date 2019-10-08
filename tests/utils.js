@@ -69,6 +69,19 @@ const initialProfileValuesUserTwo = {
 	discord: '#user_two',
 }
 
+const initialProfileValuesUserThree = {
+	location: 'user_three_location',
+	website: 'www.user_three.com',
+	bio: 'user_three biography.',
+	github: 'user_three_github',
+	youtube_link: 'user_three_youtube',
+	twitter: 'user_three_twitter',
+	facebook_link: 'user_three_facebook',
+	linkedin: 'user_three_linkedin',
+	instagram: '@user_three_github',
+	discord: '#user_three',
+}
+
 const projectUserOne1 = {
 	name: 'user_one_project',
 	description: 'user_one_project_description',
@@ -91,6 +104,18 @@ const projectUserTwo2 = {
 	name: 'user_two_project_2',
 	description: 'user_two_project_description_2',
 	url: 'www.user_two_project_2.com'
+}
+
+const projectUserThree1 = {
+	name: 'user_three_project',
+	description: 'user_three_project_description',
+	url: 'www.user_three_project.com'
+}
+
+const projectUserFour1 = {
+	name: 'user_four_project',
+	description: 'user_four_project_description',
+	url: 'www.user_four_project.com'
 }
 
 function checkCount({ type, arr, length, values }) {
@@ -245,6 +270,25 @@ async function deleteProject(projectId, token, status = 200) {
 	return res.body
 }
 
+async function fetchUsersProjects(userId, token, status = 200, type = '') {
+	const res = await request(app)
+		.get(`/api/projects/user/${userId}?type=${type}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
+async function fetchPotentialProjects(token, status = 200, finalized = undefined, archived = undefined, accepting_members = undefined) {
+	const res = await request(app)
+		.get(`/api/projects/potentialProjects?finalized=${finalized}&archived=${archived}&accepting_members=${accepting_members}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -261,14 +305,19 @@ module.exports = {
 	compareValues,
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
+	initialProfileValuesUserThree,
 	projectUserOne1,
 	projectUserOne2,
 	projectUserTwo1,
 	projectUserTwo2,
+	projectUserThree1,
+	projectUserFour1,
 	createProject,
 	archiveProject,
 	unarchiveProject,
 	fetchProjectById,
 	editProject,
 	deleteProject,
+	fetchUsersProjects,
+	fetchPotentialProjects,
 }

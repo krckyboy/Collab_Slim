@@ -11,6 +11,7 @@ const {
 	userFive,
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
+	initialProfileValuesUserThree,
 	registerNewUser,
 	login, // new
 	checkCount, // new
@@ -19,6 +20,8 @@ const {
 	projectUserOne2, // new
 	projectUserTwo1, // new
 	projectUserTwo2, // new
+	projectUserThree1,
+	projectUserFour1,
 	populateProfile,
 	createProject,
 	deleteProject,
@@ -590,45 +593,101 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	// User two registers
 	// User three registers
 	// User four registers
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userThree, 201)
+	await registerNewUser(userFour, 201)
 
-	// User one updates profile
-	// User two updates profile
-	// User three updates profile
-	// User four updates profile
+	// User one updates profile - node, express, react, sql, mongodb
+	// User two updates profile -  node, express, sql
+	// User three updates profile - node, express
+	// User four does not update his profile - no skills
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userOne.token, 200)
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['node', 'express', 'sql'] }, userTwo.token, 200)
+	await populateProfile({ ...initialProfileValuesUserThree, skills: ['node', 'express'] }, userThree.token, 200)
 
 	// User one creates a project 
-	// SKILLS *** *** ***
-
+	// SKILLS node, express, react, sql, mongodb
+	//
 	// User one creates a project 
-	// SKILLS *** *** 
-
+	// SKILLS node, express, sql
+	//
 	// User two creates a project
-	// SKILLS *** *** ***
-
+	// SKILLS node, mongodb
+	//
 	// User three creates a project
-	// SKILLS *** *** 
-
+	// SKILLS python mariadb
+	//
 	// User four creates a project
-	// SKILLS *** ***
-
-	// User one blocks user three
-	// User one can't fetch user three's projects
-	// User one unblocks user three
+	// SKILLS n/a
+	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userOne.token, 201)
+	const { project: projectUserOneSecond } = await createProject({ ...projectUserOne2, skills: ['node', 'express', 'sql'] }, userOne.token, 201)
+	const { project: projectUserTwo } = await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'] }, userTwo.token, 201)
+	const { project: projectUserThree } = await createProject({ ...projectUserThree1, skills: ['node', 'express', 'sql'] }, userThree.token, 201)
+	const { project: projectUserFour } = await createProject({ ...projectUserFour1, skills: ['python', 'mariadb',] }, userFour.token, 201)
 
 	// User two blocks user one
-	// User one cannot fetch user two's projects
+	// User two can't fetch user one's projects
 	// User two unblocks user one
+	await blockUser(userTwo.token, userOne.id, 200)
+	await fetchUsersProjects(userOne.id, userTwo.token, 404)
+	await unblockUser(userTwo.token, userOne.id, 200)
+
+	// User 1 blocks user 2
+	// User 2 cannot fetch user 1's projects
+	// User 1 unblocks user 2
+	await blockUser(userOne.token, userTwo.id, 200)
+	await fetchUsersProjects(userTwo.id, userOne.token, 404)
+	await unblockUser(userOne.token, userTwo.id, 200)
+
+	// User two fetches user one's projects successfully
+	const userOneProjects1 = await fetchUsersProjects(userOne.id, userTwo.token, 200)
+	const userOneProjects1Ids = userOneProjects1.projects.map(p => p.id)
+	expect(userOneProjects1.projects.length).toBe(2)
+	expect(userOneProjects1Ids.includes(projectUserOne.id))
+	expect(userOneProjects1Ids.includes(projectUserOneSecond.id))
 
 	// User one fetches projects with his skills
 	// Check if the number is correct and the order is good, make sure he doesn't fetch his own projects
+	const { projects: projectsWithUserOneSkills1 } = await fetchPotentialProjects(userOne.token, 200)
+	expect(projectsWithUserOneSkills1.length).toBe(2)
+	expect(projectsWithUserOneSkills1[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills1[0].matchedSkills).toBe(3)
+	expect(projectsWithUserOneSkills1[1].id).toBe(projectUserTwo.id)
+	expect(projectsWithUserOneSkills1[1].matchedSkills).toBe(2)
+
+	// User one blocks user two
+	// User one fetches projects with his skills, check if there's no project of user two there
+	// User one unblocks user two
+	await blockUser(userOne.token, userTwo.id, 200)
+	const { projects: projectsWithUserOneSkills2 } = await fetchPotentialProjects(userOne.token, 200)
+	expect(projectsWithUserOneSkills2.length).toBe(1)
+	expect(projectsWithUserOneSkills2[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills2[0].matchedSkills).toBe(3)
+	await unblockUser(userOne.token, userTwo.id, 200)
+
+	// User two blocks user one
+	// User one fetches projects with his skills, check if there's no project of user two there
+	// User two unblocks user one
+	await blockUser(userTwo.token, userOne.id, 200)
+	const { projects: projectsWithUserOneSkills3 } = await fetchPotentialProjects(userOne.token, 200)
+	expect(projectsWithUserOneSkills3.length).toBe(1)
+	expect(projectsWithUserOneSkills3[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills3[0].matchedSkills).toBe(3)
+	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// User one updates his profile
 	// User one fetches projects with his skills, check if correct
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['python'] }, userOne.token, 200)
+	const { projects: projectsWithUserOneSkills4 } = await fetchPotentialProjects(userOne.token, 200)
+	expect(projectsWithUserOneSkills4.length).toBe(1)
+	expect(projectsWithUserOneSkills4[0].id).toBe(projectUserFour.id)
+	expect(projectsWithUserOneSkills4[0].matchedSkills).toBe(1)
+	expect(projectsWithUserOneSkills4[0].required_skills[0].name).toBe('python')
 
 	// User one fetches users with required skills, check if correct and order good
 	// User one blocks user two
 	// User one fetches users with required skills, check if not fetching user two
-	
+
 	// User one unblocks user two
 	// User two blocks user one 
 	// User one fetches users with required skills, check if not fetching user two
@@ -643,28 +702,27 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 
 	// User one fetches users for his project
 	// Check if not fetching user two
-	
+
 	// User one unblocks user two
 	// User two blocks user one
 
 	// User one fetches users for his project
 	// Check if not fetching user two
-	
+
 	// User two unblocks user one
-	
+
 	// User one fetches users for his projects
 	// Check if all good and fetching user two
 
 	// User two updates profile, removing skills
-	
+
 	// User one fetches users for his project
 	// Check if not fetching user two
 
 	// User two updates his profile again, switching it back to how it used to be
 
 	// User one updates his project, tweaking skills
-	
+
 	// User one fetches users for his project
 	// Check if all is good
-
 })

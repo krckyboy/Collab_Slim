@@ -69,7 +69,7 @@ router.patch('/:project_id/unarchive', auth, require('../controllers/projects/un
 // @route 	GET api/projects/potentialProjects
 // @desc 	Fetch projects with the required skills that logged user has
 // @access 	Private
-// router.get('/potentialProjects', auth, require('../controllers/projects/fetchProjectsWithMySkills'))
+router.get('/potentialProjects', auth, require('../controllers/projects/fetchProjectsWithMySkills'))
 
 // @route 	GET api/projects/:project_id
 // @desc 	Fetch project by id
@@ -78,8 +78,8 @@ router.get('/:project_id/', auth, require('../controllers/projects/getProjectByI
 
 // @route 	GET api/projects/user/:user_id
 // @desc 	Fetch user's projects
-// @access 	Public
-// router.get('/user/:user_id', require('../controllers/projects/fetchUsersProjects'))
+// @access 	Private
+router.get('/user/:user_id', auth, require('../controllers/projects/fetchUsersProjects'))
 
 // @route 	DELETE api/projects/:project_id
 // @desc 	Delete project
