@@ -64,7 +64,7 @@ router.patch('/:project_id/unarchive', auth, require('../controllers/projects/un
 // @route 	GET api/projects/:project_id/potentialUsers
 // @desc 	Fetch users with the required skills of the project
 // @access 	Private
-// router.get('/:project_id/potentialUsers', auth, require('../controllers/users/fetchUsersWithSkillsForProject'))
+router.get('/:project_id/potentialUsers', auth, require('../controllers/users/fetchUsersWithSkillsForProject'))
 
 // @route 	GET api/projects/potentialProjects
 // @desc 	Fetch projects with the required skills that logged user has

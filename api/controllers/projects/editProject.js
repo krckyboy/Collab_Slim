@@ -40,7 +40,7 @@ module.exports = async (req, res) => {
 		const existingProjectsOfUser = await Project.query().where({ owner_id: req.user.id })
 		const duplicateProject = existingProjectsOfUser.find(project => project.name === projectObject.name)
 
-		if (duplicateProject) {
+		if (duplicateProject && duplicateProject.id !== project.id) {
 			return res.status(400).json({ msg: 'You already have a project under that name!' })
 		}
 

@@ -659,20 +659,24 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	// User one fetches projects with his skills, check if there's no project of user two there
 	// User one unblocks user two
 	await blockUser(userOne.token, userTwo.id, 200)
+
 	const { projects: projectsWithUserOneSkills2 } = await fetchPotentialProjects(userOne.token, 200)
 	expect(projectsWithUserOneSkills2.length).toBe(1)
 	expect(projectsWithUserOneSkills2[0].id).toBe(projectUserThree.id)
 	expect(projectsWithUserOneSkills2[0].matchedSkills).toBe(3)
+
 	await unblockUser(userOne.token, userTwo.id, 200)
 
 	// User two blocks user one
 	// User one fetches projects with his skills, check if there's no project of user two there
 	// User two unblocks user one
 	await blockUser(userTwo.token, userOne.id, 200)
+
 	const { projects: projectsWithUserOneSkills3 } = await fetchPotentialProjects(userOne.token, 200)
 	expect(projectsWithUserOneSkills3.length).toBe(1)
 	expect(projectsWithUserOneSkills3[0].id).toBe(projectUserThree.id)
 	expect(projectsWithUserOneSkills3[0].matchedSkills).toBe(3)
+
 	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// User one updates his profile
@@ -687,42 +691,63 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	// User one fetches users with required skills, check if correct and order good
 	// User one blocks user two
 	// User one fetches users with required skills, check if not fetching user two
-
 	// User one unblocks user two
+	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne.length).toBe(2)
+	expect(potentialUsersProjectUserOne[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne[0].matchedSkills).toBe(3)
+	expect(potentialUsersProjectUserOne[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne[1].matchedSkills).toBe(2)
+
+	await blockUser(userOne.token, userTwo.id, 200)
+
+	const { users: potentialUsersProjectUserOne2 } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne2.length).toBe(1)
+	expect(potentialUsersProjectUserOne2[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne2[0].matchedSkills).toBe(2)
+
+	await unblockUser(userOne.token, userTwo.id, 200)
+
 	// User two blocks user one 
 	// User one fetches users with required skills, check if not fetching user two
 	// User two unblocks user one
+	await blockUser(userTwo.token, userOne.id, 200)
 
-	// User one fetches projects with required skills, check if all good
+	const { users: potentialUsersProjectUserOne3 } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne3.length).toBe(1)
+	expect(potentialUsersProjectUserOne3[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne3[0].matchedSkills).toBe(2)
+
+	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// User one fetches users for his project
 	// Check if all good and if the order is good
-
-	// User one blocks user two
-
-	// User one fetches users for his project
-	// Check if not fetching user two
-
-	// User one unblocks user two
-	// User two blocks user one
-
-	// User one fetches users for his project
-	// Check if not fetching user two
-
-	// User two unblocks user one
-
-	// User one fetches users for his projects
-	// Check if all good and fetching user two
+	const { users: potentialUsersProjectUserOne4 } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne4.length).toBe(2)
+	expect(potentialUsersProjectUserOne4[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne4[0].matchedSkills).toBe(3)
+	expect(potentialUsersProjectUserOne4[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne4[1].matchedSkills).toBe(2)
 
 	// User two updates profile, removing skills
-
 	// User one fetches users for his project
 	// Check if not fetching user two
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: [] }, userTwo.token, 200)
+	const { users: potentialUsersProjectUserOne5 } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne5.length).toBe(1)
+	expect(potentialUsersProjectUserOne5[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne5[0].matchedSkills).toBe(2)
 
-	// User two updates his profile again, switching it back to how it used to be
-
+	// User two updates his profile again
 	// User one updates his project, tweaking skills
-
 	// User one fetches users for his project
 	// Check if all is good
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['node'] }, userTwo.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOne1, skills: ['node', 'express', 'mariadb'], }, userOne.token, 200)
+	const { users: potentialUsersProjectUserOne6 } = await fetchPotentialUsers(userOne.token, projectUserOne.id, 200)
+	expect(potentialUsersProjectUserOne6.length).toBe(2)
+	expect(potentialUsersProjectUserOne6[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne6[0].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne6[1].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne6[1].matchedSkills).toBe(1)
 })

@@ -28,7 +28,5 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 		delete p.owner.blocked_members
 	})
 
-	console.log(projectsWithSkillsAndNumberOfMatchedSkillsSorted)
-
 	return projectsWithSkillsAndNumberOfMatchedSkillsSorted
 }

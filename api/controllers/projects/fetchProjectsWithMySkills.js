@@ -14,7 +14,11 @@ module.exports = async (req, res) => {
 
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)
 		const skillsIds = hasSkills.map(skill => skill.id)
-		const projectsWithRequiredSkillsSorted = await getProjectsWithMySkillsSorted({ arrayOfSkills: skillsIds, userId: req.user.id, blockedUsersIdsArr })
+		const projectsWithRequiredSkillsSorted = await getProjectsWithMySkillsSorted({
+			arrayOfSkills: skillsIds,
+			userId: req.user.id,
+			blockedUsersIdsArr
+		})
 
 		return res.json({ projects: projectsWithRequiredSkillsSorted })
 	} catch (err) {

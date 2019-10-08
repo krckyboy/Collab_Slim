@@ -288,6 +288,14 @@ async function fetchPotentialProjects(token, status = 200, finalized = undefined
 	return res.body
 }
 
+async function fetchPotentialUsers(token, projectId, status = 200) {
+	const res = await request(app)
+		.get(`/api/projects/${projectId}/potentialUsers`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
 
 module.exports = {
 	registerNewUser,
@@ -320,4 +328,5 @@ module.exports = {
 	deleteProject,
 	fetchUsersProjects,
 	fetchPotentialProjects,
+	fetchPotentialUsers,
 }
