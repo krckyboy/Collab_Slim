@@ -7,7 +7,9 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(req.params.project_id).eager('[owner, required_skills, has_tags]')
+		const project = await Project.query().findById(req.params.project_id)
+			.eager('[owner, required_skills, has_tags]')
+			.modifyEager('owner', builder => builder.select('id', 'name'))
 
 		// Returns true if user has blocked targetId, otherwise false
 		// If logged user has blocked the project owner, also 404

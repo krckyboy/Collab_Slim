@@ -9,7 +9,7 @@ module.exports = async (req, res) => {
 		let user
 
 		if (await checkIfBlocked(userId, req.user.id) || await checkIfBlocked(req.user.id, userId)) {
-			return res.status(404).json({ msg: 'No project found!' })
+			return res.status(404).json({ msg: 'No user found!' })
 		}
 
 		// Figure out query strings type

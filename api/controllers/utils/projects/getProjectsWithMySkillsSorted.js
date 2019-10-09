@@ -4,6 +4,7 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 	const projectsWithSkills = await Project.query()
 		.joinEager('[required_skills, owner.[blocked_members]]')
 		.modifyEager('required_skills', builder => builder.select('id', 'name'))
+		.modifyEager('owner', builder => builder.select('id', 'name'))
 		// .whereNot('owner:blocked_members_join.target_id', userId)
 		.whereNot('projects.owner_id', userId) // Skipping projects which userId owns
 		.whereNotIn('projects.owner_id', blockedUsersIdsArr) // Skipping projects where the owner is blocked from userId

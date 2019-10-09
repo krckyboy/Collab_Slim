@@ -132,7 +132,7 @@ test('Delete user + check skills, tags, projects', async () => {
 	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['express'] }, userTwo.token, 200)
 
 	// User one creates project 1
-	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
+	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
 
 	// User one creates project 2
 	await createProject({ ...projectUserOne2, skills: ['node'], tags: ['easy'] }, userOne.token, 201)
@@ -141,7 +141,7 @@ test('Delete user + check skills, tags, projects', async () => {
 	await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userTwo.token, 201)
 
 	// User one archives project 1
-	await archiveProject(userOne.token, projectUserOne.project.id, 200)
+	await archiveProject(userOne.token, projectUserOne.id, 200)
 
 	await request(app)
 		.delete('/api/users')
@@ -193,10 +193,10 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	await registerNewUser(userThree, 201)
 
 	// User one creates a project
-	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
+	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
 
 	// User two creates a project
-	const projectUserTwo = await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userTwo.token, 201)
+	const { project: projectUserTwo } = await createProject({ ...projectUserTwo1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userTwo.token, 201)
 
 	// User one blocks user two and user three
 	await blockUser(userOne.token, userTwo.id, 200)
@@ -207,20 +207,20 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	expect(blocked_members.length).toBe(2)
 	expect([userTwo.id, userThree.id].some(id => blocked_members.map(user => user.id).includes(id))).toBe(true)
 
-	// User one tries to fetch user two [400]
-	await fetchUserById(userOne.token, userTwo.id, 400)
+	// User one tries to fetch user two [404]
+	await fetchUserById(userOne.token, userTwo.id, 404)
 
-	// User one tries to fetch user three [400]
-	await fetchUserById(userOne.token, userThree.id, 400)
+	// User one tries to fetch user three [404]
+	await fetchUserById(userOne.token, userThree.id, 404)
 
 	// User one tries to fetch user two's project [404]
-	await fetchProjectById(userOne.token, projectUserTwo.project.id, 404)
+	await fetchProjectById(userOne.token, projectUserTwo.id, 404)
 
 	// User two tries to fetch user one [404]
 	await fetchUserById(userTwo.token, userOne.id, 404)
 
 	// User two tries to fetch user one's project [404]
-	await fetchProjectById(userTwo.token, projectUserOne.project.id, 404)
+	await fetchProjectById(userTwo.token, projectUserOne.id, 404)
 
 	// User one unblocks user two
 	await unblockUser(userOne.token, userTwo.id, 200)
@@ -231,30 +231,30 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	expect(blocked_members2[0].id).toBe(userThree.id)
 
 	// User one fetches user two's project [200]
-	const projectUserTwoThatUserOneFetched = await fetchProjectById(userOne.token, projectUserTwo.project.id, 200)
+	const projectUserTwoThatUserOneFetched = await fetchProjectById(userOne.token, projectUserTwo.id, 200)
 	compareValues({
 		obj: projectUserTwoThatUserOneFetched.project,
 		values: { ...projectUserTwo1 }
 	})
 
 	// User two fetches user one's project [200]
-	const projectUserOneThatUserTwoFetched = await fetchProjectById(userTwo.token, projectUserOne.project.id, 200)
+	const projectUserOneThatUserTwoFetched = await fetchProjectById(userTwo.token, projectUserOne.id, 200)
 	compareValues({
 		obj: projectUserOneThatUserTwoFetched.project,
 		values: { ...projectUserOne1 }
 	})
 
 	// User one fetches user two [200]
-	const fetchedUserTwo = await fetchUserById(userOne.token, userTwo.id, 200)
-	expect(fetchedUserTwo.user.id).toBe(userTwo.id)
-	expect(fetchedUserTwo.user.name).toBe(userTwo.name)
-	expect(fetchedUserTwo.user.email).toBe(undefined)
+	const { user: fetchedUserTwo } = await fetchUserById(userOne.token, userTwo.id, 200)
+	expect(fetchedUserTwo.id).toBe(userTwo.id)
+	expect(fetchedUserTwo.name).toBe(userTwo.name)
+	expect(fetchedUserTwo.email).toBe(undefined)
 
 	// User two fetches user one [200]
-	const fetchedUserOne = await fetchUserById(userTwo.token, userOne.id, 200)
-	expect(fetchedUserOne.user.id).toBe(userOne.id)
-	expect(fetchedUserOne.user.name).toBe(userOne.name)
-	expect(fetchedUserOne.user.email).toBe(undefined)
+	const { user: fetchedUserOne } = await fetchUserById(userTwo.token, userOne.id, 200)
+	expect(fetchedUserOne.id).toBe(userOne.id)
+	expect(fetchedUserOne.name).toBe(userOne.name)
+	expect(fetchedUserOne.email).toBe(undefined)
 })
 
 test('User profile update + skills with has_skills check', async () => {
@@ -632,9 +632,9 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	await unblockUser(userOne.token, userTwo.id, 200)
 
 	// User two fetches user one's projects successfully
-	const userOneProjects1 = await fetchUsersProjects(userOne.id, userTwo.token, 200)
-	const userOneProjects1Ids = userOneProjects1.projects.map(p => p.id)
-	expect(userOneProjects1.projects.length).toBe(2)
+	const { projects: userOneProjects1 } = await fetchUsersProjects(userOne.id, userTwo.token, 200)
+	const userOneProjects1Ids = userOneProjects1.map(p => p.id)
+	expect(userOneProjects1.length).toBe(2)
 	expect(userOneProjects1Ids.includes(projectUserOne.id))
 	expect(userOneProjects1Ids.includes(projectUserOneSecond.id))
 
