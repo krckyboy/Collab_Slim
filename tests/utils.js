@@ -85,7 +85,10 @@ const initialProfileValuesUserThree = {
 const projectUserOne1 = {
 	name: 'user_one_project',
 	description: 'user_one_project_description',
-	url: 'www.user_one_project.com'
+	url: 'www.user_one_project.com',
+	paid: true,
+	location: 'Houston, Texas',
+	remote: true
 }
 
 const projectUserOne2 = {

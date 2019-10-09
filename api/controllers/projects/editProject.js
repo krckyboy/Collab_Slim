@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
 	let { skills } = req.body
 	let { tags } = req.body
 
-	const projectFields = ['name', 'description', 'url']
+	const projectFields = ['name', 'description', 'url', 'remote', 'location', 'paid']
 	const projectObject = fetchDataFromKeys(projectFields, req)
 
 	const { skills: skillsArray, tags: tagsArray } = validateSkillsAndTags({ skills, tags, res })

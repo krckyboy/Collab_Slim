@@ -8,7 +8,6 @@ const {
 	userTwo,
 	userThree,
 	userFour,
-	userFive,
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
 	initialProfileValuesUserThree,
@@ -19,7 +18,6 @@ const {
 	projectUserOne1, // new
 	projectUserOne2, // new
 	projectUserTwo1, // new
-	projectUserTwo2, // new
 	projectUserThree1,
 	projectUserFour1,
 	populateProfile,
@@ -417,7 +415,7 @@ test('User profile update + skills with has_skills check', async () => {
 
 test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	// User one creates project 1
-	const projectUserOne = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
+	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'mongodb'], tags: ['ecommerce'] }, userOne.token, 201)
 
 	// Check if skills exist properly with count
 	const skills1 = await Skill.query()
@@ -433,12 +431,12 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 		description: 'user_one_project_description_edited',
 		url: 'www.user_one_project.com_edited'
 	}
-	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['node', 'express'], tags: ['wordpress'] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOneEdited, skills: ['node', 'express'], tags: ['wordpress'] }, userOne.token, 200)
 
 	// Checking if it's successfully edited
-	const projectUserOneFetched1 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const { project: projectUserOneFetched1 } = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 	compareValues({
-		obj: projectUserOneFetched1.project,
+		obj: projectUserOneFetched1,
 		values: { ...projectUserOneEdited }
 	})
 
@@ -451,7 +449,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags2, length: 2, values: { wordpress: 1, ecommerce: 0 } })
 
 	// User one edits project once again, sending empty array for skills and array
-	await editProject(projectUserOne.project.id, { ...projectUserOne1, skills: [], tags: [] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOne1, skills: [], tags: [] }, userOne.token, 200)
 
 	// Check if skills are updated properly
 	const skills3 = await Skill.query()
@@ -462,14 +460,14 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	expect(tags3.length).toBe(2) // wordpress ecommerce
 
 	// Check if project updated
-	const projectUserOneFetched2 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const projectUserOneFetched2 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 	compareValues({
 		obj: projectUserOneFetched2.project,
 		values: { ...projectUserOne1 }
 	})
 
 	// User one edits project just to get back the skills and tags
-	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
 
 	// Check if skills are updated properly
 	const skills4 = await Skill.query()
@@ -480,7 +478,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags4, length: 3, values: { easy: 1, wordpress: 0, ecommerce: 0 } })
 
 	// User one edits project once again, sending no values for skills and array
-	await editProject(projectUserOne.project.id, { ...projectUserOne1, }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOne1, }, userOne.token, 200)
 
 	// Check if skills are updated properly
 	const skills5 = await Skill.query()
@@ -491,10 +489,10 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags5, length: 3, values: { easy: 0, wordpress: 0, ecommerce: 0 } })
 
 	// User one edits project just to get back the skills and tags
-	await editProject(projectUserOne.project.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOneEdited, skills: ['sql', 'express'], tags: ['easy'] }, userOne.token, 200)
 
 	// Check if project updated
-	const projectUserOneFetched3 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const projectUserOneFetched3 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 	compareValues({
 		obj: projectUserOneFetched3.project,
 		values: { ...projectUserOneEdited }
@@ -512,9 +510,9 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags6, length: 3, values: { easy: 1, wordpress: 0, ecommerce: 0 } })
 
 	// User archives project
-	await archiveProject(userOne.token, projectUserOne.project.id, 200)
+	await archiveProject(userOne.token, projectUserOne.id, 200)
 
-	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 
 	expect(projectUserOneFetched4.project.archived).toBe(true)
 	expect(projectUserOneFetched4.project.required_skills.length).toBe(2)
@@ -529,7 +527,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags7, length: 3, values: { easy: 0, wordpress: 0, ecommerce: 0 } })
 
 	// User two unarchives project
-	await unarchiveProject(userOne.token, projectUserOne.project.id, 200)
+	await unarchiveProject(userOne.token, projectUserOne.id, 200)
 
 	// Check skills
 	const skills8 = await Skill.query()
@@ -540,7 +538,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags8, length: 3, values: { easy: 1, wordpress: 0, ecommerce: 0 } })
 
 	// Check project data along with skills and tags
-	const projectUserOneFetched5 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const projectUserOneFetched5 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 
 	expect(projectUserOneFetched5.project.archived).toBe(false)
 	expect(projectUserOneFetched5.project.required_skills.length).toBe(2)
@@ -552,7 +550,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	})
 
 	// User one edits project again with different skills and tags
-	await editProject(projectUserOne.project.id, { ...projectUserOne1, skills: ['mongodb', 'python'], tags: ['easy', 'advanced'] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOne1, skills: ['mongodb', 'python'], tags: ['easy', 'advanced'] }, userOne.token, 200)
 
 	// Check skills
 	const skills9 = await Skill.query()
@@ -563,7 +561,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	checkCount({ type: 'count', arr: tags9, length: 4, values: { easy: 1, wordpress: 0, ecommerce: 0, advanced: 1 } })
 
 	// Check project data along with skills and tags
-	const projectUserOneFetched6 = await fetchProjectById(userOne.token, projectUserOne.project.id, 200)
+	const projectUserOneFetched6 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 	expect(projectUserOneFetched6.project.archived).toBe(false)
 	expect(projectUserOneFetched6.project.required_skills.length).toBe(2)
 	expect(projectUserOneFetched6.project.has_tags.length).toBe(2)
@@ -574,7 +572,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	})
 
 	// User one deletes project
-	await deleteProject(projectUserOne.project.id, userOne.token, 200)
+	await deleteProject(projectUserOne.id, userOne.token, 200)
 
 	// Check what happens with skills
 	const skills10 = await Skill.query()

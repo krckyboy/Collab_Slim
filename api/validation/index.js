@@ -13,7 +13,7 @@ const loginUserValidation = [
 
 const createProjectValidation = [
 	check('name', 'Name is required!').exists(),
-	check('description', 'Description is required!').exists(),
+	check('description', 'Description is required!').exists(), // @todo Set the length to a paragraph for better content.
 ]
 
 module.exports = {
