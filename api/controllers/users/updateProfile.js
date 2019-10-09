@@ -6,7 +6,7 @@ const checkIfObjectValuesAreOfSpecificType = require('../utils/checkIfObjectValu
 const checkIfArrayValuesAreOfSpecificType = require('../utils/checkIfArrayValuesAreOfSpecificType')
 
 module.exports = async (req, res) => {
-	const profileFields = ['location', 'website', 'bio', 'github', 'youtube_link', 'twitter', 'facebook_link', 'linkedin', 'instagram', 'discord']
+	const profileFields = ['location', 'website', 'bio', 'github']
 
 	// Returns an object with key value pairs related to profileFields
 	const profileObject = fetchDataFromKeys(profileFields, req)

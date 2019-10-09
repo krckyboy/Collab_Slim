@@ -49,24 +49,13 @@ const initialProfileValuesUserOne = {
 	website: 'www.user_one.com',
 	bio: 'user_one biography.',
 	github: 'user_one_github',
-	youtube_link: 'user_one_youtube',
-	twitter: 'user_one_twitter',
-	facebook_link: 'user_one_facebook',
-	linkedin: 'user_one_linkedin',
-	instagram: '@user_one_github',
-	discord: '#user_one',
+
 }
 const initialProfileValuesUserTwo = {
 	location: 'user_two_location',
 	website: 'www.user_two.com',
 	bio: 'user_two biography.',
 	github: 'user_two_github',
-	youtube_link: 'user_two_youtube',
-	twitter: 'user_two_twitter',
-	facebook_link: 'user_two_facebook',
-	linkedin: 'user_two_linkedin',
-	instagram: '@user_two_github',
-	discord: '#user_two',
 }
 
 const initialProfileValuesUserThree = {
@@ -74,12 +63,6 @@ const initialProfileValuesUserThree = {
 	website: 'www.user_three.com',
 	bio: 'user_three biography.',
 	github: 'user_three_github',
-	youtube_link: 'user_three_youtube',
-	twitter: 'user_three_twitter',
-	facebook_link: 'user_three_facebook',
-	linkedin: 'user_three_linkedin',
-	instagram: '@user_three_github',
-	discord: '#user_three',
 }
 
 const projectUserOne1 = {

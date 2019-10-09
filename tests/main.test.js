@@ -248,13 +248,13 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	const fetchedUserTwo = await fetchUserById(userOne.token, userTwo.id, 200)
 	expect(fetchedUserTwo.user.id).toBe(userTwo.id)
 	expect(fetchedUserTwo.user.name).toBe(userTwo.name)
-	expect(fetchedUserTwo.user.email).toBe(userTwo.email)
+	expect(fetchedUserTwo.user.email).toBe(undefined)
 
 	// User two fetches user one [200]
 	const fetchedUserOne = await fetchUserById(userTwo.token, userOne.id, 200)
 	expect(fetchedUserOne.user.id).toBe(userOne.id)
 	expect(fetchedUserOne.user.name).toBe(userOne.name)
-	expect(fetchedUserOne.user.email).toBe(userOne.email)
+	expect(fetchedUserOne.user.email).toBe(undefined)
 })
 
 test('User profile update + skills with has_skills check', async () => {
@@ -337,12 +337,6 @@ test('User profile update + skills with has_skills check', async () => {
 		website: 'website_edited',
 		bio: null,
 		github: null,
-		youtube_link: null,
-		twitter: null,
-		facebook_link: null,
-		linkedin: null,
-		instagram: null,
-		discord: null,
 	}
 
 	const userOneFetched3 = await fetchUserById(userOne.token, userOne.id, 200)

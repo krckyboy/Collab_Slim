@@ -8,13 +8,7 @@ exports.up = knex => {
 			table.string('location')
 			table.string('website')
 			table.string('bio', '1500')
-			table.string('facebook_link')
-			table.string('youtube_link')
-			table.string('twitter')
 			table.string('github')
-			table.string('linkedin')
-			table.string('instagram')
-			table.string('discord')
 		})
 		.createTable('authentication', table => {
 			table.increments('id').primary()
