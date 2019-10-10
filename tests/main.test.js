@@ -30,7 +30,6 @@ const {
 	editProject,
 	archiveProject,
 	unarchiveProject,
-	getAllProjects,
 	fetchPotentialUsers,
 	fetchPotentialProjects,
 	fetchUsersProjects,
@@ -44,6 +43,7 @@ const {
 	searchTags,
 	getOccurrence,
 	checkEventsLength,
+	fetchLatestProjectsPagination,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -747,7 +747,7 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	expect(potentialUsersProjectUserOne6[1].matchedSkills).toBe(1)
 })
 
-test('/fetchPopularTags, /fetchPopularSkills', async () => {
+test('/fetchPopularTags, /fetchPopularSkills, /fetchSkillsInDemand and latest', async () => {
 	// User two registers
 	// User three registers
 	await registerNewUser(userTwo, 201)
@@ -833,4 +833,52 @@ test('/fetchPopularTags, /fetchPopularSkills', async () => {
 	const { tags: allTags2 } = await fetchTags({ start: 1, end: 3 })
 	expect(allTags2.results.length).toBe(3)
 	expect(allTags2.results[0].name).toBe('ecommerce')
+})
+
+test('/getLatestProjectsPagination', async () => {
+	// User two registers
+	// User three registers
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userThree, 201)
+	await registerNewUser(userFour, 201)
+
+	// Users populate profiles
+	await populateProfile({ ...initialProfileValuesUserFour, skills: ['sql',] }, userFour.token, 200)
+	await populateProfile({ ...initialProfileValuesUserThree, skills: ['sql', 'express', 'react'] }, userThree.token, 200)
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['sql', 'express', 'node'] }, userTwo.token, 200)
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['sql', 'express', 'react', 'node', 'mongodb'] }, userOne.token, 200)
+
+	// User one creates a project 1
+	// User one creates a project 2
+	const { project: projectUserOneFirst } = await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'], tags: ['blog', 'ecommerce', 'wordpress'] }, userOne.token, 201)
+	const { project: projectUserOneSecond } = await createProject({ ...projectUserOne2, skills: ['node', 'express'], tags: ['ecommerce'] }, userOne.token, 201)
+	// User two creates a project 1
+	// User two creates a project 2
+	const { project: projectUserTwoFirst } = await createProject({ ...projectUserTwo1, skills: ['node', 'react',], tags: ['ecommerce'] }, userTwo.token, 201)
+	const { project: projectUserTwoSecond } = await createProject({ ...projectUserTwo2, skills: ['node', 'mongodb'], tags: ['website', 'blog'] }, userTwo.token, 201)
+	// User three creates a project 1
+	// User three creates a project 2
+	const { project: projectUserThreeFirst } = await createProject({ ...projectUserThree1, skills: ['express'], tags: ['website', 'wordpress', 'blog'] }, userThree.token, 201)
+	const { project: projectUserThreeSecond } = await createProject({ ...projectUserThree2, skills: ['sql'], tags: ['easy', 'blog'] }, userThree.token, 201)
+
+	// Get latest projects
+	// Check if order and pagination works
+	const { projects: projectsFeed } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
+	expect(projectsFeed.length).toBe(4)
+	expect(projectsFeed[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed[1].id).toBe(projectUserThreeFirst.id)
+	expect(projectsFeed[2].id).toBe(projectUserTwoSecond.id)
+	expect(projectsFeed[3].id).toBe(projectUserTwoFirst.id)
+
+	// User one blocks user two
+	// News feed check
+	// User two unblocks user two
+	await blockUser(userOne.token, userTwo.id, 200)
+	
+	const { projects: projectsFeed2 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
+	expect(projectsFeed2.length).toBe(2)
+	expect(projectsFeed2[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed2[1].id).toBe(projectUserThreeFirst.id)
+	
+	await unblockUser(userOne.token, userTwo.id, 200)
 })

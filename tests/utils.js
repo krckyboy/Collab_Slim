@@ -312,6 +312,15 @@ async function fetchSkills({ status = 200, start, end, type }) {
 	return res.body
 }
 
+async function fetchLatestProjectsPagination({ token, start, end, status = 200 }) {
+	const res = await request(app)
+		.get(`/api/projects?start=${start}&end=${end}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -348,4 +357,5 @@ module.exports = {
 	fetchPotentialUsers,
 	fetchTags,
 	fetchSkills,
+	fetchLatestProjectsPagination,
 }

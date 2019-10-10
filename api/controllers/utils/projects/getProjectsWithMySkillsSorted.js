@@ -9,6 +9,7 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 		.whereNot('projects.owner_id', userId) // Skipping projects which userId owns
 		.whereNotIn('projects.owner_id', blockedUsersIdsArr) // Skipping projects where the owner is blocked from userId
 		.whereIn('required_skills.id', arrayOfSkills)
+		.whereNot('projects.archived', true)
 
 	const projectsWithSkillsAndNumberOfMatchedSkills = projectsWithSkills.map(project => {
 		const matchedSkills = project.required_skills.length

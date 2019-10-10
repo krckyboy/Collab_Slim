@@ -9,6 +9,10 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No user found!' })
 		}
 
+		if (userId === req.user.id) {
+			return res.status(400).json({ msg: 'You cannot block yourself!' })
+		}
+
 		// Fetch user with user id
 		const targetUser = await User.query().findById(userId)
 

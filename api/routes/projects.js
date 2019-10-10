@@ -18,11 +18,10 @@ const upload = multer({
 	}
 })
 
-// @todo Add pagination
 // @route 	GET api/projects
-// @desc 	Get all projects
-// @access 	Public
-router.get('/', require('../controllers/projects/getAllProjects'))
+// @desc 	Get latest projects with pagination
+// @access 	Private
+router.get('/', auth, require('../controllers/projects/fetchLatestProjectsPagination'))
 
 // @route 	POST api/projects 
 // @desc 	Create a project
