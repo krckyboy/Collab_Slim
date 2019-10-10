@@ -129,7 +129,7 @@ test('Delete user + check skills, tags, projects', async () => {
 	await registerNewUser(userTwo, 201)
 
 	// User one populates profile, adding skills
-	await populateProfile({ ...initialProfileValuesUserOne, skills: ['express', 'react'] }, userOne.token, 200)
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['express', 'react', 'react'] }, userOne.token, 200)
 
 	// User two has one skill
 	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['express'] }, userTwo.token, 200)
@@ -428,7 +428,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 		description: 'user_one_project_description_edited',
 		url: 'www.user_one_project.com_edited'
 	}
-	await editProject(projectUserOne.id, { ...projectUserOneEdited, skills: ['node', 'express'], tags: ['wordpress'] }, userOne.token, 200)
+	await editProject(projectUserOne.id, { ...projectUserOneEdited, skills: ['node', 'express', 'express'], tags: ['wordpress', 'wordpress'] }, userOne.token, 200)
 
 	// Checking if it's successfully edited
 	const { project: projectUserOneFetched1 } = await fetchProjectById(userOne.token, projectUserOne.id, 200)
@@ -748,20 +748,6 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 })
 
 test('/fetchPopularTags, /fetchPopularSkills', async () => {
-	// "In demand"
-	// Node 4
-	// Express 3
-	// React 2
-	// SQL 1
-	// MongoDB 1
-
-	// "Popular"
-	// SQL 4
-	// Express 3
-	// React 2
-	// Node 2
-	// MongoDB 1
-
 	// User two registers
 	// User three registers
 	await registerNewUser(userTwo, 201)
@@ -776,17 +762,23 @@ test('/fetchPopularTags, /fetchPopularSkills', async () => {
 
 	// User one creates a project 1
 	// User one creates a project 2
-	await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'] }, userOne.token, 201)
-	await createProject({ ...projectUserOne2, skills: ['node', 'express'] }, userOne.token, 201)
+	await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'], tags: ['blog', 'ecommerce', 'wordpress'] }, userOne.token, 201)
+	await createProject({ ...projectUserOne2, skills: ['node', 'express'], tags: ['ecommerce'] }, userOne.token, 201)
 	// User two creates a project 1
 	// User two creates a project 2
-	await createProject({ ...projectUserTwo1, skills: ['node', 'react',] }, userTwo.token, 201)
-	await createProject({ ...projectUserTwo2, skills: ['node', 'mongodb'] }, userTwo.token, 201)
+	await createProject({ ...projectUserTwo1, skills: ['node', 'react',], tags: ['ecommerce'] }, userTwo.token, 201)
+	await createProject({ ...projectUserTwo2, skills: ['node', 'mongodb'], tags: ['website', 'blog'] }, userTwo.token, 201)
 	// User three creates a project 1
 	// User three creates a project 2
-	await createProject({ ...projectUserThree1, skills: ['express'] }, userThree.token, 201)
-	await createProject({ ...projectUserThree2, skills: ['sql'] }, userThree.token, 201)
+	await createProject({ ...projectUserThree1, skills: ['express'], tags: ['website', 'wordpress', 'blog'] }, userThree.token, 201)
+	await createProject({ ...projectUserThree2, skills: ['sql'], tags: ['easy', 'blog'] }, userThree.token, 201)
 
+	// "In demand"
+	// Node 4
+	// Express 3
+	// React 2
+	// SQL 1
+	// MongoDB 1
 
 	// Fetch skills with pagination in_demand
 	// Check if order is good and pagination works
@@ -795,6 +787,13 @@ test('/fetchPopularTags, /fetchPopularSkills', async () => {
 	expect(allSkillsInDemand.results[0].name).toBe('node')
 	expect(allSkillsInDemand.results[1].name).toBe('express')
 	expect(allSkillsInDemand.results[2].name).toBe('react')
+
+	// "Popular"
+	// SQL 4
+	// Express 3
+	// React 2
+	// Node 2
+	// MongoDB 1
 
 	// Fetch skills with pagination popular
 	// Check if order is good and pagination works
@@ -816,6 +815,22 @@ test('/fetchPopularTags, /fetchPopularSkills', async () => {
 	expect(allSkillsDefaultOnly1.results.length).toBe(1)
 	expect(allSkillsDefaultOnly1.results[0].name).toBe('node')
 
+	// "Tags"
+	// blog 4
+	// ecommerce 3
+	// wordpress 2
+	// website 2
+	// easy 1
+
 	// Fetch tags with pagination
 	// Check if order is good and pagination works
+	const { tags: allTags } = await fetchTags({ start: 0, end: 9 })
+	expect(allTags.results.length).toBe(5)
+	expect(allTags.results[0].name).toBe('blog')
+	expect(allTags.results[1].name).toBe('ecommerce')
+	expect(allTags.results[4].name).toBe('easy')
+
+	const { tags: allTags2 } = await fetchTags({ start: 1, end: 3 })
+	expect(allTags2.results.length).toBe(3)
+	expect(allTags2.results[0].name).toBe('ecommerce')
 })

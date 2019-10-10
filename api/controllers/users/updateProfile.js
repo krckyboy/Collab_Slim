@@ -3,7 +3,7 @@ const fetchDataFromKeys = require('../utils/fetchDataFromKeys')
 const insertMissingSkillsToDb = require('../utils/skills/insertMissingSkillsToDb')
 const updateCountSkills = require('../utils/skills/updateCountSkills')
 const checkIfObjectValuesAreOfSpecificType = require('../utils/checkIfObjectValuesAreOfSpecificType')
-const checkIfArrayValuesAreOfSpecificType = require('../utils/checkIfArrayValuesAreOfSpecificType')
+const validateSkillsAndTags = require('../utils/validateSkillsAndTags')
 
 module.exports = async (req, res) => {
 	const profileFields = ['location', 'website', 'bio', 'github']
@@ -17,15 +17,11 @@ module.exports = async (req, res) => {
 		return res.status(400).json({ msg: 'Invalid data.' })
 	}
 
-	// Check if skills is an array and each element string
-	if (skills) {
-		if (!checkIfArrayValuesAreOfSpecificType(skills, 'string')) {
-			return res.status(400).json({ msg: 'Invalid data.' })
-		}
-	} else {
-		skills = []
-	}
+	const { skills: skillsArray, err } = validateSkillsAndTags({ skills, res })
 
+	if (err) {
+		return res.status(400).json({ msg: 'Invalid data.' })
+	}
 	try {
 		const user = await User.query().findById(req.user.id).eager('has_skills')
 
@@ -33,7 +29,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'User does not exist.' })
 		}
 
-		const newSkillsWithIds = await insertMissingSkillsToDb(skills) // this inserts skills into skills table
+		const newSkillsWithIds = await insertMissingSkillsToDb(skillsArray) // this inserts skills into skills table
 
 		const graphData = {
 			...user,

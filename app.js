@@ -14,7 +14,6 @@ app.get('/', (req, res) => {
 app.use('/api/users', require('./api/routes/users'))
 app.use('/api/projects', require('./api/routes/projects'))
 app.use('/api/skills', require('./api/routes/skills'))
-/*
 app.use('/api/tags', require('./api/routes/tags'))
-*/
+
 module.exports = app
