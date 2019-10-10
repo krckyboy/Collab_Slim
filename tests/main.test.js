@@ -745,6 +745,8 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	expect(potentialUsersProjectUserOne6[0].matchedSkills).toBe(2)
 	expect(potentialUsersProjectUserOne6[1].id).toBe(userTwo.id)
 	expect(potentialUsersProjectUserOne6[1].matchedSkills).toBe(1)
+
+	// @todo Check if pagination works
 })
 
 test('/fetchPopularTags, /fetchPopularSkills, /fetchSkillsInDemand and latest', async () => {
@@ -801,7 +803,6 @@ test('/fetchPopularTags, /fetchPopularSkills, /fetchSkillsInDemand and latest', 
 	expect(allSkillsPopular.results.length).toBe(5)
 	expect(allSkillsPopular.results[0].name).toBe('sql')
 	expect(allSkillsPopular.results[1].name).toBe('express')
-	expect(allSkillsPopular.results[2].name).toBe('react')
 
 	// Fetch latest skills (default, no type sent)
 	const { skills: allSkillsDefault } = await fetchSkills({ start: 0, end: 9 })
@@ -850,8 +851,8 @@ test('/getLatestProjectsPagination', async () => {
 
 	// User one creates a project 1
 	// User one creates a project 2
-	const { project: projectUserOneFirst } = await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'], tags: ['blog', 'ecommerce', 'wordpress'] }, userOne.token, 201)
-	const { project: projectUserOneSecond } = await createProject({ ...projectUserOne2, skills: ['node', 'express'], tags: ['ecommerce'] }, userOne.token, 201)
+	await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'], tags: ['blog', 'ecommerce', 'wordpress'] }, userOne.token, 201)
+	await createProject({ ...projectUserOne2, skills: ['node', 'express'], tags: ['ecommerce'] }, userOne.token, 201)
 	// User two creates a project 1
 	// User two creates a project 2
 	const { project: projectUserTwoFirst } = await createProject({ ...projectUserTwo1, skills: ['node', 'react',], tags: ['ecommerce'] }, userTwo.token, 201)
@@ -874,11 +875,11 @@ test('/getLatestProjectsPagination', async () => {
 	// News feed check
 	// User two unblocks user two
 	await blockUser(userOne.token, userTwo.id, 200)
-	
+
 	const { projects: projectsFeed2 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
 	expect(projectsFeed2.length).toBe(2)
 	expect(projectsFeed2[0].id).toBe(projectUserThreeSecond.id)
 	expect(projectsFeed2[1].id).toBe(projectUserThreeFirst.id)
-	
+
 	await unblockUser(userOne.token, userTwo.id, 200)
 })

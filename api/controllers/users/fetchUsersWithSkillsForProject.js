@@ -1,9 +1,18 @@
 const Project = require('../../../db/models/Project')
 const User = require('../../../db/models/User')
 const getUsersWithRequiredSkillsSortedForProject = require('../utils/users/getUsersWithRequiredSkillsSorted')
+const validatePagination = require('../utils/validatePagination')
 
 module.exports = async (req, res) => {
 	try {
+		let start = parseInt(req.query.start)
+		let end = parseInt(req.query.end)
+
+		if (!validatePagination({ start, end })) {
+			start = 0
+			end = 10
+		}
+
 		const projectId = parseInt(req.params.project_id)
 		const user = await User.query().findById(req.user.id).eager('[has_skills, blocked_members]')
 		const { blocked_members: blockedMembers } = user
@@ -31,6 +40,8 @@ module.exports = async (req, res) => {
 			requiredSkillsIds,
 			blockedUsersIdsArr,
 			userId: req.user.id,
+			start,
+			end,
 		})
 
 		return res.json({ users: usersWithRequiredSkillsSorted })

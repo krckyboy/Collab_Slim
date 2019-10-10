@@ -1,6 +1,6 @@
 const Project = require('../../../../db/models/Project')
 
-module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, userId, blockedUsersIdsArr }) {
+module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, userId, blockedUsersIdsArr, start, end, }) {
 	const projectsWithSkills = await Project.query()
 		.joinEager('[required_skills, owner.[blocked_members]]')
 		.modifyEager('required_skills', builder => builder.select('id', 'name'))
@@ -10,8 +10,9 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 		.whereNotIn('projects.owner_id', blockedUsersIdsArr) // Skipping projects where the owner is blocked from userId
 		.whereIn('required_skills.id', arrayOfSkills)
 		.whereNot('projects.archived', true)
+		.range(start, end)
 
-	const projectsWithSkillsAndNumberOfMatchedSkills = projectsWithSkills.map(project => {
+	const projectsWithSkillsAndNumberOfMatchedSkills = projectsWithSkills.results.map(project => {
 		const matchedSkills = project.required_skills.length
 		return { ...project, matchedSkills }
 	})

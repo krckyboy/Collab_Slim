@@ -1,10 +1,18 @@
 /* eslint-disable indent */
 const User = require('../../../db/models/User')
 const getProjectsWithMySkillsSorted = require('../utils/projects/getProjectsWithMySkillsSorted')
-
+const validatePagination = require('../utils/validatePagination')
 
 module.exports = async (req, res) => {
 	try {
+		let start = parseInt(req.query.start)
+		let end = parseInt(req.query.end)
+
+		if (!validatePagination({ start, end })) {
+			start = 0
+			end = 10
+		}
+
 		const user = await User.query().findById(req.user.id).eager('[has_skills, blocked_members]')
 		const { has_skills: hasSkills, blocked_members: blockedMembers } = user
 
@@ -17,7 +25,9 @@ module.exports = async (req, res) => {
 		const projectsWithRequiredSkillsSorted = await getProjectsWithMySkillsSorted({
 			arrayOfSkills: skillsIds,
 			userId: req.user.id,
-			blockedUsersIdsArr
+			blockedUsersIdsArr,
+			start,
+			end,
 		})
 
 		return res.json({ projects: projectsWithRequiredSkillsSorted })

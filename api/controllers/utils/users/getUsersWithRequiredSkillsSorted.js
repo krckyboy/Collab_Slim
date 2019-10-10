@@ -1,6 +1,6 @@
 const User = require('../../../../db/models/User')
 
-module.exports = async function getUsersWithRequiredSkillsSortedForProject({ requiredSkillsIds, blockedUsersIdsArr, userId }) {
+module.exports = async function getUsersWithRequiredSkillsSortedForProject({ requiredSkillsIds, blockedUsersIdsArr, userId, start, end }) {
 	const usersWithRequiredSkills = await User.query()
 		.select('users.id', 'users.name')
 		.joinEager('[has_skills, blocked_members]')
@@ -8,8 +8,9 @@ module.exports = async function getUsersWithRequiredSkillsSortedForProject({ req
 		.whereNot('users.id', userId) // Skipping userId (the user hitting this API)
 		.whereNotIn('users.id', blockedUsersIdsArr) // Skipping users which are blocked from userId
 		.whereIn('has_skills.id', requiredSkillsIds)
+		.range(start, end)
 
-	const usersWithRequiredSkillsAndNumberOfMatchedSkills = usersWithRequiredSkills.map(user => {
+	const usersWithRequiredSkillsAndNumberOfMatchedSkills = usersWithRequiredSkills.results.map(user => {
 		const matchedSkills = user.has_skills.length
 		return { ...user, matchedSkills }
 	})

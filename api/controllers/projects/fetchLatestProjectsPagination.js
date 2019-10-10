@@ -12,7 +12,7 @@ module.exports = async (req, res) => {
 			start = 0
 			end = 10
 		}
-
+ 
 		const { blocked_members: blockedMembers } = user
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)
 
