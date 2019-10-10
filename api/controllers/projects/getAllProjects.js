@@ -1,4 +1,5 @@
 const Project = require('../../../db/models/Project')
+const validatePagination = require('../utils/validatePagination')
 
 module.exports = async (req, res) => {
 	try {

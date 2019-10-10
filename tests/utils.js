@@ -65,6 +65,13 @@ const initialProfileValuesUserThree = {
 	github: 'user_three_github',
 }
 
+const initialProfileValuesUserFour = {
+	location: 'user_four_location',
+	website: 'www.user_four.com',
+	bio: 'user_four biography.',
+	github: 'user_four_github',
+}
+
 const projectUserOne1 = {
 	name: 'user_one_project',
 	description: 'user_one_project_description',
@@ -96,6 +103,12 @@ const projectUserThree1 = {
 	name: 'user_three_project',
 	description: 'user_three_project_description',
 	url: 'www.user_three_project.com'
+}
+
+const projectUserThree2 = {
+	name: 'user_three_project_2',
+	description: 'user_three_project_description_2',
+	url: 'www.user_three_project_2.com'
 }
 
 const projectUserFour1 = {
@@ -283,6 +296,22 @@ async function fetchPotentialUsers(token, projectId, status = 200) {
 	return res.body
 }
 
+async function fetchTags({ status = 200, start, end }) {
+	const res = await request(app)
+		.get(`/api/tags?start=${start}&end=${end}`)
+		.expect(status)
+
+	return res.body
+}
+
+async function fetchSkills({ status = 200, start, end, type }) {
+	const res = await request(app)
+		.get(`/api/skills?start=${start}&end=${end}&type=${type}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -300,11 +329,13 @@ module.exports = {
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
 	initialProfileValuesUserThree,
+	initialProfileValuesUserFour,
 	projectUserOne1,
 	projectUserOne2,
 	projectUserTwo1,
 	projectUserTwo2,
 	projectUserThree1,
+	projectUserThree2,
 	projectUserFour1,
 	createProject,
 	archiveProject,
@@ -315,4 +346,6 @@ module.exports = {
 	fetchUsersProjects,
 	fetchPotentialProjects,
 	fetchPotentialUsers,
+	fetchTags,
+	fetchSkills,
 }

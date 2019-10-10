@@ -11,6 +11,7 @@ const {
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
 	initialProfileValuesUserThree,
+	initialProfileValuesUserFour,
 	registerNewUser,
 	login, // new
 	checkCount, // new
@@ -18,7 +19,9 @@ const {
 	projectUserOne1, // new
 	projectUserOne2, // new
 	projectUserTwo1, // new
+	projectUserTwo2, // new
 	projectUserThree1,
+	projectUserThree2,
 	projectUserFour1,
 	populateProfile,
 	createProject,
@@ -742,4 +745,77 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	expect(potentialUsersProjectUserOne6[0].matchedSkills).toBe(2)
 	expect(potentialUsersProjectUserOne6[1].id).toBe(userTwo.id)
 	expect(potentialUsersProjectUserOne6[1].matchedSkills).toBe(1)
+})
+
+test('/fetchPopularTags, /fetchPopularSkills', async () => {
+	// "In demand"
+	// Node 4
+	// Express 3
+	// React 2
+	// SQL 1
+	// MongoDB 1
+
+	// "Popular"
+	// SQL 4
+	// Express 3
+	// React 2
+	// Node 2
+	// MongoDB 1
+
+	// User two registers
+	// User three registers
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userThree, 201)
+	await registerNewUser(userFour, 201)
+
+	// Users populate profiles
+	await populateProfile({ ...initialProfileValuesUserFour, skills: ['sql',] }, userFour.token, 200)
+	await populateProfile({ ...initialProfileValuesUserThree, skills: ['sql', 'express', 'react'] }, userThree.token, 200)
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['sql', 'express', 'node'] }, userTwo.token, 200)
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['sql', 'express', 'react', 'node', 'mongodb'] }, userOne.token, 200)
+
+	// User one creates a project 1
+	// User one creates a project 2
+	await createProject({ ...projectUserOne1, skills: ['express', 'react', 'node'] }, userOne.token, 201)
+	await createProject({ ...projectUserOne2, skills: ['node', 'express'] }, userOne.token, 201)
+	// User two creates a project 1
+	// User two creates a project 2
+	await createProject({ ...projectUserTwo1, skills: ['node', 'react',] }, userTwo.token, 201)
+	await createProject({ ...projectUserTwo2, skills: ['node', 'mongodb'] }, userTwo.token, 201)
+	// User three creates a project 1
+	// User three creates a project 2
+	await createProject({ ...projectUserThree1, skills: ['express'] }, userThree.token, 201)
+	await createProject({ ...projectUserThree2, skills: ['sql'] }, userThree.token, 201)
+
+
+	// Fetch skills with pagination in_demand
+	// Check if order is good and pagination works
+	const { skills: allSkillsInDemand } = await fetchSkills({ start: 0, end: 9, type: 'in_demand' })
+	expect(allSkillsInDemand.results.length).toBe(5)
+	expect(allSkillsInDemand.results[0].name).toBe('node')
+	expect(allSkillsInDemand.results[1].name).toBe('express')
+	expect(allSkillsInDemand.results[2].name).toBe('react')
+
+	// Fetch skills with pagination popular
+	// Check if order is good and pagination works
+	const { skills: allSkillsPopular } = await fetchSkills({ start: 0, end: 9, type: 'popular' })
+	expect(allSkillsPopular.results.length).toBe(5)
+	expect(allSkillsPopular.results[0].name).toBe('sql')
+	expect(allSkillsPopular.results[1].name).toBe('express')
+	expect(allSkillsPopular.results[2].name).toBe('react')
+
+	// Fetch latest skills (default, no type sent)
+	const { skills: allSkillsDefault } = await fetchSkills({ start: 0, end: 9 })
+	expect(allSkillsDefault.results.length).toBe(5)
+	expect(allSkillsDefault.results[0].name).toBe('mongodb')
+	expect(allSkillsDefault.results[1].name).toBe('node')
+	expect(allSkillsDefault.results[4].name).toBe('sql')
+
+	// Fetch latest skills (default, no type sent)
+	const { skills: allSkillsDefaultOnly1 } = await fetchSkills({ start: 1, end: 1 })
+	expect(allSkillsDefaultOnly1.results.length).toBe(1)
+	expect(allSkillsDefaultOnly1.results[0].name).toBe('node')
+
+	// Fetch tags with pagination
+	// Check if order is good and pagination works
 })
