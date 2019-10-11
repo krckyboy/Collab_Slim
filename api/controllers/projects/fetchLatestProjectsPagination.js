@@ -4,7 +4,7 @@ const validatePagination = require('../utils/validatePagination')
 
 module.exports = async (req, res) => {
 	try {
-		const user = await User.query().findById(req.user.id).eager('blocked_members')
+		const user = await User.query().findById(req.user.id).eager('blockedMembers')
 		let start = parseInt(req.query.start)
 		let end = parseInt(req.query.end)
 
@@ -12,13 +12,13 @@ module.exports = async (req, res) => {
 			start = 0
 			end = 10
 		}
- 
-		const { blocked_members: blockedMembers } = user
+
+		const { blockedMembers } = user
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)
 
 		const projects = await Project
 			.query()
-			.eager('[owner.[blocked_members], required_skills, has_tags]')
+			.eager('[owner.[blockedMembers], required_skills, has_tags]')
 			.modifyEager('owner', builder => builder.select('id', 'name'))
 			.range(start, end)
 			.where({ archived: false })
@@ -27,13 +27,13 @@ module.exports = async (req, res) => {
 			.orderBy('created_at', 'desc')
 
 		const projectsWhereUserIdIsntBlocked = projects.results.filter(p => {
-			const blockedMembersIds = p.owner.blocked_members.map(u => u.id)
+			const blockedMembersIds = p.owner.blockedMembers.map(u => u.id)
 			if (!blockedMembersIds.includes(req.user.id)) return true
 		})
 
 		// Delete banned_members on each project.owner for privacy issues
 		projectsWhereUserIdIsntBlocked.forEach(p => {
-			delete p.owner.blocked_members
+			delete p.owner.blockedMembers
 		})
 
 		return res.json({ projects: projectsWhereUserIdIsntBlocked })

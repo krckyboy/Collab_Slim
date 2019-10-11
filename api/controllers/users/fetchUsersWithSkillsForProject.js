@@ -14,8 +14,8 @@ module.exports = async (req, res) => {
 		}
 
 		const projectId = parseInt(req.params.project_id)
-		const user = await User.query().findById(req.user.id).eager('[has_skills, blocked_members]')
-		const { blocked_members: blockedMembers } = user
+		const user = await User.query().findById(req.user.id).eager('[blockedMembers]')
+		const { blockedMembers } = user
 
 		if (isNaN(projectId)) {
 			return res.status(404).send('No project found')
@@ -37,7 +37,7 @@ module.exports = async (req, res) => {
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)
 
 		const usersWithRequiredSkillsSorted = await getUsersWithRequiredSkillsSortedForProject({
-			requiredSkillsIds,
+			skillIds: requiredSkillsIds,
 			blockedUsersIdsArr,
 			userId: req.user.id,
 			start,

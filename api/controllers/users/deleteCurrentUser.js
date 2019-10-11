@@ -4,8 +4,8 @@ const updateCountTag = require('../utils/tags/updateCountTag')
 
 module.exports = async (req, res) => {
 	try {
-		const user = await User.query().findById(req.user.id).eager('[has_skills, projects.[required_skills, has_tags]]')
-		const { has_skills, projects } = user
+		const user = await User.query().findById(req.user.id).eager('[skills, projects.[required_skills, has_tags]]')
+		const { skills: has_skills, projects } = user
 
 		const tagsAndSkills = {
 			tags: [],

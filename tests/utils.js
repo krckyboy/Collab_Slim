@@ -1,8 +1,6 @@
 const request = require('supertest')
 const app = require('../app')
 const jwtDecode = require('jwt-decode')
-const User = require('../db/models/User')
-const Event = require('../db/models/Event')
 
 const userOne = {
 	name: 'userone',
@@ -39,6 +37,30 @@ const userFour = {
 const userFive = {
 	name: 'userfive',
 	email: 'userfive@gmail.com',
+	password: 'password',
+	token: '',
+	id: ''
+}
+
+const userSix = {
+	name: 'usersix',
+	email: 'usersix@gmail.com',
+	password: 'password',
+	token: '',
+	id: ''
+}
+
+const userSeven = {
+	name: 'userseven',
+	email: 'userseven@gmail.com',
+	password: 'password',
+	token: '',
+	id: ''
+}
+
+const userEight = {
+	name: 'usereight',
+	email: 'usereight@gmail.com',
 	password: 'password',
 	token: '',
 	id: ''
@@ -287,9 +309,9 @@ async function fetchPotentialProjects(token, status = 200, finalized = undefined
 	return res.body
 }
 
-async function fetchPotentialUsers(token, projectId, status = 200) {
+async function fetchPotentialUsers({ token, projectId, start, end, status = 200 }) {
 	const res = await request(app)
-		.get(`/api/projects/${projectId}/potentialUsers`)
+		.get(`/api/projects/${projectId}/potentialUsers?start=${start}&end=${end}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
@@ -328,6 +350,9 @@ module.exports = {
 	userThree,
 	userFour,
 	userFive,
+	userSix,
+	userSeven,
+	userEight,
 	login,
 	blockUser,
 	unblockUser,

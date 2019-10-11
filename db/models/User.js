@@ -28,7 +28,7 @@ class User extends Model {
 					to: 'projects.owner_id'
 				}
 			},
-			blocked_members: {
+			blockedMembers: {
 				relation: Model.ManyToManyRelation,
 				modelClass: User,
 				join: {
@@ -48,7 +48,7 @@ class User extends Model {
 					to: 'notifications.user_to_notify'
 				}
 			},
-			has_skills: {
+			skills: {
 				relation: Model.ManyToManyRelation,
 				modelClass: Skill,
 				join: {

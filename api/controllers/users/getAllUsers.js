@@ -2,7 +2,7 @@ const User = require('../../../db/models/User')
 
 module.exports = async (req, res) => {
 	try {
-		const users = await User.query().eager('[profile, has_skills]')
+		const users = await User.query().eager('[profile, skills]')
 		res.json({ users })
 	} catch (err) {
 		console.error(err)

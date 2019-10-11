@@ -20,12 +20,12 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No user found!' })
 		}
 
-		const user = await User.query().findById(req.user.id)
-		const blocked_members = user.blocked_members
+		const user = await User.query().findById(req.user.id).eager('blockedMembers')
+		const { blockedMembers } = user
 
 		// Check if already blocked
-		if (blocked_members && blocked_members.length > 0) {
-			if (blocked_members.map(m => m.id).includes(targetUser.id)) {
+		if (blockedMembers && blockedMembers.length > 0) {
+			if (blockedMembers.map(m => m.id).includes(targetUser.id)) {
 				return res.status(400).json({ msg: 'You have already blocked that user!' })
 			}
 		}
@@ -38,7 +38,7 @@ module.exports = async (req, res) => {
 		})
 
 		await user
-			.$relatedQuery('blocked_members')
+			.$relatedQuery('blockedMembers')
 			.relate({ id: targetUser.id })
 
 		return res.json({ targetUser })

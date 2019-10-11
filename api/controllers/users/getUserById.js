@@ -10,7 +10,8 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'User does not exist.' })
 		}
 
-		const user = await User.query().select('id', 'name', 'bio', 'location', 'website', 'github').findById(user_id_number).eager('[has_skills, blocked_members]')
+		const user = await User.query().select('id', 'name', 'bio', 'location', 'website', 'github').findById(user_id_number)
+			.eager('[skills, blockedMembers]')
 
 		if (!user) {
 			return res.status(404).json({ msg: 'User does not exist.' })
@@ -21,7 +22,7 @@ module.exports = async (req, res) => {
 		}
 
 		// don't include blocked members
-		delete user.blocked_members
+		delete user.blockedMembers
 
 		res.status(200).json({ user })
 	} catch (err) {

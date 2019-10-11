@@ -1,24 +1,24 @@
 const Project = require('../../../../db/models/Project')
 
-module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, userId, blockedUsersIdsArr, start, end, }) {
+module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, userId, blockedUsersIdsArr,  }) {
 	const projectsWithSkills = await Project.query()
-		.joinEager('[required_skills, owner.[blocked_members]]')
+		.joinEager('[required_skills, owner.[blockedMembers]]')
 		.modifyEager('required_skills', builder => builder.select('id', 'name'))
 		.modifyEager('owner', builder => builder.select('id', 'name'))
-		// .whereNot('owner:blocked_members_join.target_id', userId)
+		// .whereNot('owner:blockedMembers_join.target_id', userId)
 		.whereNot('projects.owner_id', userId) // Skipping projects which userId owns
 		.whereNotIn('projects.owner_id', blockedUsersIdsArr) // Skipping projects where the owner is blocked from userId
 		.whereIn('required_skills.id', arrayOfSkills)
 		.whereNot('projects.archived', true)
-		.range(start, end)
+		// .range(start, end)
 
-	const projectsWithSkillsAndNumberOfMatchedSkills = projectsWithSkills.results.map(project => {
+	const projectsWithSkillsAndNumberOfMatchedSkills = projectsWithSkills.map(project => {
 		const matchedSkills = project.required_skills.length
 		return { ...project, matchedSkills }
 	})
 
 	const projectsWhereUserIdIsntBlocked = projectsWithSkillsAndNumberOfMatchedSkills.filter(p => {
-		const blockedMembersIds = p.owner.blocked_members.map(u => u.id)
+		const blockedMembersIds = p.owner.blockedMembers.map(u => u.id)
 		if (!blockedMembersIds.includes(userId)) return true
 	})
 
@@ -28,7 +28,7 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 
 	// Delete banned_members on each project.owner for privacy issues
 	projectsWithSkillsAndNumberOfMatchedSkillsSorted.forEach(p => {
-		delete p.owner.blocked_members
+		delete p.owner.blockedMembers
 	})
 
 	return projectsWithSkillsAndNumberOfMatchedSkillsSorted

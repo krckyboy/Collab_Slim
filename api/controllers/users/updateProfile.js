@@ -23,7 +23,7 @@ module.exports = async (req, res) => {
 		return res.status(400).json({ msg: 'Invalid data.' })
 	}
 	try {
-		const user = await User.query().findById(req.user.id).eager('has_skills')
+		const user = await User.query().findById(req.user.id).eager('skills')
 
 		if (!user) {
 			return res.status(404).json({ msg: 'User does not exist.' })
@@ -34,22 +34,22 @@ module.exports = async (req, res) => {
 		const graphData = {
 			...user,
 			...profileObject,
-			has_skills: newSkillsWithIds
+			skills: newSkillsWithIds
 		}
 
 		const options = {
-			relate: ['has_skills'],
-			unrelate: ['has_skills']
+			relate: ['skills'],
+			unrelate: ['skills']
 		}
 
-		const updatedUser = await user.$query().upsertGraphAndFetch(graphData, options).eager('has_skills')
+		const updatedUser = await user.$query().upsertGraphAndFetch(graphData, options).eager('skills')
 
-		const oldSkillsOnUser = user.has_skills
+		const oldSkillsOnUser = user.skills
 
 		const newSkillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...newSkillsWithIds, ...oldSkillsOnUser], type: 'has_skills' })
 
 		// @todo Go through the newSkillsWithCountUpdated, update updatedUser.has_skills with ones that he actually has
-		updatedUser.has_skills = newSkillsWithCountUpdated
+		updatedUser.skills = newSkillsWithCountUpdated
 
 		return res.json({ updatedUser })
 	} catch (err) {

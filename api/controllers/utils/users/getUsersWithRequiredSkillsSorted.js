@@ -1,33 +1,28 @@
 const User = require('../../../../db/models/User')
 
-module.exports = async function getUsersWithRequiredSkillsSortedForProject({ requiredSkillsIds, blockedUsersIdsArr, userId, start, end }) {
-	const usersWithRequiredSkills = await User.query()
+// So for has_skills, it returns only skills that are matched for the project, not other skills that he has.
+module.exports = async function getUsersWithRequiredSkillsSortedForProject({ skillIds, blockedUsersIdsArr, userId, start, end }) {
+	// Note that the query here isn't `await`ed. We don't execute this query. It will
+	// be compiled as a part of the parent query.
+	const hasSkillsSubquery = User.relatedQuery('skills').whereIn('has_skills.skill_id', skillIds)
+	const blockedUserIdSubquery = User.relatedQuery('blockedMembers').where('blocked_members.target_id', userId)
+
+	const users = await User.query()
 		.select('users.id', 'users.name')
-		.joinEager('[has_skills, blocked_members]')
-		.modifyEager('has_skills', builder => builder.select('id', 'name'))
+		.eager('skills')
+		.modifyEager('skills', builder => builder.select('skills.id', 'skills.name').whereIn('skills.id', skillIds)) // Populating the matched skills
+		.whereExists(hasSkillsSubquery.clone()) // Only taking into account users who have passed skills
+		.whereNotExists(blockedUserIdSubquery.clone()) // Skipping users who blocked userId
 		.whereNot('users.id', userId) // Skipping userId (the user hitting this API)
 		.whereNotIn('users.id', blockedUsersIdsArr) // Skipping users which are blocked from userId
-		.whereIn('has_skills.id', requiredSkillsIds)
+		.orderByRaw('(?) DESC', hasSkillsSubquery.clone().count())
 		.range(start, end)
 
-	const usersWithRequiredSkillsAndNumberOfMatchedSkills = usersWithRequiredSkills.results.map(user => {
-		const matchedSkills = user.has_skills.length
+	// Manually adding the number of matched skills
+	const usersWithCount = users.results.map(user => {
+		const matchedSkills = user.skills.length
 		return { ...user, matchedSkills }
 	})
 
-	const usersWhoDontHaveUserIdBlocked = usersWithRequiredSkillsAndNumberOfMatchedSkills.filter(u => {
-		const blockedMembersIds = u.blocked_members.map(u => u.id)
-		if (!blockedMembersIds.includes(userId)) return true
-	})
-
-	const usersWithRequiredSkillsAndNumberOfMatchedSkillsSorted = usersWhoDontHaveUserIdBlocked.sort((a, b) => {
-		return b.matchedSkills - a.matchedSkills
-	})
-
-	// Delete banned_members on each user for privacy issues
-	usersWithRequiredSkillsAndNumberOfMatchedSkillsSorted.forEach(u => {
-		delete u.blocked_members
-	})
-
-	return usersWithRequiredSkillsAndNumberOfMatchedSkillsSorted
-} 
+	return usersWithCount
+}
