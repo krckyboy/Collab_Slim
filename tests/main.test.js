@@ -640,10 +640,19 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 
 	// User two fetches user one's projects successfully
 	const { projects: userOneProjects1 } = await fetchUsersProjects(userOne.id, userTwo.token, 200)
-	const userOneProjects1Ids = userOneProjects1.map(p => p.id)
 	expect(userOneProjects1.length).toBe(2)
-	expect(userOneProjects1Ids.includes(projectUserOne.id))
-	expect(userOneProjects1Ids.includes(projectUserOneSecond.id))
+	expect(userOneProjects1[0].id).toBe(projectUserOneSecond.id)
+	expect(userOneProjects1[1].id).toBe(projectUserOne.id)
+
+	// Check if pagination and sorting works
+	const { projects: userOneProjects2 } = await fetchUsersProjects(userOne.id, userTwo.token, 200, null, 0, 0)
+	expect(userOneProjects2.length).toBe(1)
+	expect(userOneProjects2[0].id).toBe(projectUserOneSecond.id)
+
+	const { projects: userOneProjects3 } = await fetchUsersProjects(userOne.id, userTwo.token, 200, null, 0, 1)
+	expect(userOneProjects3.length).toBe(2)
+	expect(userOneProjects3[0].id).toBe(projectUserOneSecond.id)
+	expect(userOneProjects3[1].id).toBe(projectUserOne.id)
 
 	// User one fetches projects with his skills
 	// Check if the number is correct and the order is good, make sure he doesn't fetch his own projects

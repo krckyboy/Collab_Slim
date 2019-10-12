@@ -291,9 +291,9 @@ async function deleteProject(projectId, token, status = 200) {
 	return res.body
 }
 
-async function fetchUsersProjects(userId, token, status = 200, type = '') {
+async function fetchUsersProjects(userId, token, status = 200, type = '', start, end) {
 	const res = await request(app)
-		.get(`/api/projects/user/${userId}?type=${type}`)
+		.get(`/api/projects/user/${userId}?type=${type}&start=${start}&end=${end}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
