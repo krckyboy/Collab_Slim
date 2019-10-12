@@ -886,7 +886,7 @@ test('/getLatestProjectsPagination', async () => {
 	await unblockUser(userOne.token, userTwo.id, 200)
 })
 
-test('Detailed testing fetchPotentialUsers', async () => {
+test('/fetchPotentialUsers pagination', async () => {
 	// Users registering
 	await registerNewUser(userThree, 201)
 	await registerNewUser(userFour, 201)
@@ -905,14 +905,25 @@ test('Detailed testing fetchPotentialUsers', async () => {
 	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
 	await populateProfile({ skills: ['irrelevant'] }, userEight.token, 200)
 
+	// User one blocks user seven
 	await blockUser(userOne.token, userSeven.id, 200)
 
+	// User one creates a project
+	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userOne.token, 201)
 
-	const { project: projectUserOne } = await createProject({
-		...projectUserOne1,
-		skills: ['node', 'express', 'react', 'sql', 'mongodb']
-	}, userOne.token, 201)
+	// Check if pagination and order works as expected
+	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id, start: 0, end: 2 })
+	expect(potentialUsersProjectUserOne.length).toBe(3)
+	expect(potentialUsersProjectUserOne[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne[0].skills.length).toBe(5)
+	expect(potentialUsersProjectUserOne[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne[1].skills.length).toBe(4)
+	expect(potentialUsersProjectUserOne[2].id).toBe(userFour.id)
+	expect(potentialUsersProjectUserOne[2].skills.length).toBe(3)
 
-	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id, start: 0, end: 4 })
-	// console.log(potentialUsersProjectUserOne)
+	// Check if no blocked user
+	const { users: potentialUsersProjectUserOne2 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
+	expect(potentialUsersProjectUserOne2.length).toBe(5)
+	expect(potentialUsersProjectUserOne2[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne2.map(u => u.id).includes(userSeven.id)).toBe(false)
 })
