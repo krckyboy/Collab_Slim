@@ -27,6 +27,8 @@ const {
 	projectUserThree1,
 	projectUserThree2,
 	projectUserFour1,
+	projectUserFour2,
+	projectUserSeven1,
 	populateProfile,
 	createProject,
 	deleteProject,
@@ -912,7 +914,7 @@ test('/getLatestProjectsPagination', async () => {
 	expect(projectsFeed4[1].id).toBe(projectUserThreeFirst.id)
 })
 
-test('/fetchPotentialUsers pagination', async () => {
+test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () => {
 	// Users registering
 	await registerNewUser(userThree, 201)
 	await registerNewUser(userFour, 201)
@@ -937,6 +939,13 @@ test('/fetchPotentialUsers pagination', async () => {
 	// User one creates a project
 	const { project: projectUserOne } = await createProject({ ...projectUserOne1, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userOne.token, 201)
 
+	const { project: projectUserTwoFirst } = await createProject({ ...projectUserTwo1, skills: ['node', 'express'] }, userTwo.token, 201)
+	const { project: projectUserTwoSecond } = await createProject({ ...projectUserTwo2, skills: ['node', 'express', 'react', 'mongodb'] }, userTwo.token, 201)
+	const { project: projectUserThreeFirst } = await createProject({ ...projectUserThree1, skills: ['react', 'sql', 'mongodb'] }, userThree.token, 201)
+	await createProject({ ...projectUserThree2, skills: ['irrelevant'] }, userThree.token, 201)
+	const { project: projectUserFourFirst } = await createProject({ ...projectUserFour1, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userFour.token, 201)
+	await createProject({ ...projectUserSeven1, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 201)
+
 	// Check if pagination and order works as expected
 	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id, start: 0, end: 2 })
 	expect(potentialUsersProjectUserOne.length).toBe(3)
@@ -952,4 +961,27 @@ test('/fetchPotentialUsers pagination', async () => {
 	expect(potentialUsersProjectUserOne2.length).toBe(5)
 	expect(potentialUsersProjectUserOne2[0].id).toBe(userTwo.id)
 	expect(potentialUsersProjectUserOne2.map(u => u.id).includes(userSeven.id)).toBe(false)
+
+	// User seven populates profile with skills
+	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
+
+	// User seven gets potential projects
+	const { projects: potentialProjectsUserSeven } = await fetchPotentialProjects(userSeven.token, 200)
+	expect(potentialProjectsUserSeven.length).toBe(4)
+	expect(potentialProjectsUserSeven[0].id).toBe(projectUserFourFirst.id)
+	expect(potentialProjectsUserSeven[0].matchedSkills).toBe(5)
+	expect(potentialProjectsUserSeven[1].id).toBe(projectUserTwoSecond.id)
+	expect(potentialProjectsUserSeven[1].matchedSkills).toBe(4)
+	expect(potentialProjectsUserSeven[2].id).toBe(projectUserThreeFirst.id)
+	expect(potentialProjectsUserSeven[2].matchedSkills).toBe(3)
+	expect(potentialProjectsUserSeven[3].id).toBe(projectUserTwoFirst.id)
+	expect(potentialProjectsUserSeven[3].matchedSkills).toBe(2)
+
+	// Check if order works properly
+	const { projects: potentialProjectsUserSeven2 } = await fetchPotentialProjects(userSeven.token, 200, 0, 1)
+	expect(potentialProjectsUserSeven2.length).toBe(2)
+	expect(potentialProjectsUserSeven2[0].id).toBe(projectUserFourFirst.id)
+	expect(potentialProjectsUserSeven2[0].matchedSkills).toBe(5)
+	expect(potentialProjectsUserSeven2[1].id).toBe(projectUserTwoSecond.id)
+	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
 })

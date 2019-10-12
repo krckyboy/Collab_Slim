@@ -139,6 +139,18 @@ const projectUserFour1 = {
 	url: 'www.user_four_project.com'
 }
 
+const projectUserFour2 = {
+	name: 'user_four_project_2',
+	description: 'user_four_project_description_2',
+	url: 'www.user_four_project_2.com'
+}
+
+const projectUserSeven1 = {
+	name: 'user_seven_project',
+	description: 'user_seven_project_description',
+	url: 'www.user_seven_project.com'
+}
+
 function checkCount({ type, arr, length, values }) {
 	// Check the length
 	expect(arr.length).toBe(length)
@@ -371,6 +383,8 @@ module.exports = {
 	projectUserThree1,
 	projectUserThree2,
 	projectUserFour1,
+	projectUserFour2,
+	projectUserSeven1,
 	createProject,
 	archiveProject,
 	unarchiveProject,
