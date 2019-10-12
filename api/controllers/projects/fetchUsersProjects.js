@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 
 		if (type === 'archived') {
 			projects = await Project.query()
-				.eager('required_skills')
+				.eager('skills')
 				.where('owner_id', userId)
 				.where({ archived: true })
 				.range(start, end)
@@ -39,8 +39,7 @@ module.exports = async (req, res) => {
 		} else {
 			// By default, it fetches projects that he's the owner of
 			projects = await Project.query()
-				.eager('required_skills')
-				.eager('required_skills')
+				.eager('skills')
 				.where('owner_id', userId)
 				.whereNot({ archived: true })
 				.orderBy('created_at', 'desc')

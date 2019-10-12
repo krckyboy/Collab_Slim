@@ -19,7 +19,7 @@ class Project extends Model {
 					to: 'users.id'
 				}
 			},
-			required_skills: {
+			skills: {
 				relation: Model.ManyToManyRelation,
 				modelClass: Skill,
 				join: {

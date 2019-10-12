@@ -21,7 +21,7 @@ module.exports = async (req, res) => {
 			return res.status(404).send('No project found')
 		}
 
-		const project = await Project.query().findById(projectId).eager('required_skills')
+		const project = await Project.query().findById(projectId).eager('skills')
 
 		if (!project) {
 			return res.status(404).send('No project found')
@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 			return res.status(401).json({ msg: 'You\'re not authorized for this action!' })
 		}
 
-		const { required_skills: requiredSkills } = project
+		const { skills: requiredSkills } = project
 		const requiredSkillsIds = requiredSkills.map(skill => skill.id)
 
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)

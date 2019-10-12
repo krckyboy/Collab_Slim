@@ -11,7 +11,7 @@ module.exports = async function getUsersWithRequiredSkillsSortedForProject({ ski
 		.select('users.id', 'users.name')
 		.eager('skills')
 		.modifyEager('skills', builder => builder.select('skills.id', 'skills.name').whereIn('skills.id', skillIds)) // Populating the matched skills
-		.whereExists(hasSkillsSubquery.clone()) // Only taking into account users who have passed skills
+		.whereExists(hasSkillsSubquery.clone()) // Only taking into account users who have at least 1 matched skill
 		.whereNotExists(blockedUserIdSubquery.clone()) // Skipping users who blocked userId
 		.whereNot('users.id', userId) // Skipping userId (the user hitting this API)
 		.whereNotIn('users.id', blockedUsersIdsArr) // Skipping users which are blocked from userId

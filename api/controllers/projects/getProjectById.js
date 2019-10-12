@@ -8,7 +8,7 @@ module.exports = async (req, res) => {
 		}
 
 		const project = await Project.query().findById(req.params.project_id)
-			.eager('[owner, required_skills, has_tags]')
+			.eager('[owner, skills, has_tags]')
 			.modifyEager('owner', builder => builder.select('id', 'name'))
 
 		// Returns true if user has blocked targetId, otherwise false

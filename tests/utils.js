@@ -300,9 +300,9 @@ async function fetchUsersProjects(userId, token, status = 200, type = '', start,
 	return res.body
 }
 
-async function fetchPotentialProjects(token, status = 200, finalized = undefined, archived = undefined, accepting_members = undefined) {
+async function fetchPotentialProjects(token, status = 200, start, end) {
 	const res = await request(app)
-		.get(`/api/projects/potentialProjects?finalized=${finalized}&archived=${archived}&accepting_members=${accepting_members}`)
+		.get(`/api/projects/potentialProjects?start=${start}&end=${end}}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 

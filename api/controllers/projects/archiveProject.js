@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project found!' })
 		}
 
-		const project = await Project.query().findById(projectId).eager('[required_skills, has_tags]')
+		const project = await Project.query().findById(projectId).eager('[skills, has_tags]')
 
 		if (!project) {
 			return res.status(404).json({ msg: 'No project found!' })
@@ -32,7 +32,7 @@ module.exports = async (req, res) => {
 		})
 
 		// Update skill count
-		await updateCountSkills({ skillsWithIds: [...project.required_skills], type: 'required_skills' })
+		await updateCountSkills({ skillsWithIds: [...project.skills], type: 'required_skills' })
 
 		// Update tag count
 		await updateCountTag({ tagsWithIds: [...project.has_tags] })

@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
 		return res.status(404).json({ msg: 'No project found!' })
 	}
 
-	const project = await Project.query().findById(projectId).eager('[required_skills, has_tags]')
+	const project = await Project.query().findById(projectId).eager('[skills, has_tags]')
 
 	if (project.owner_id !== req.user.id) {
 		return res.status(401).json({ msg: 'You are not authorized to do that!' })
@@ -54,19 +54,19 @@ module.exports = async (req, res) => {
 		const graphData = {
 			...projectObject, // Key value pairs such as: name, description, url
 			owner_id: req.user.id,
-			required_skills: skillsWithIds,
+			skills: skillsWithIds,
 			has_tags: tagsWithIds,
 			id: project.id
 		}
 
 		const options = {
-			relate: ['required_skills', 'has_tags'],
-			unrelate: ['required_skills', 'has_tags']
+			relate: ['skills', 'has_tags'],
+			unrelate: ['skills', 'has_tags']
 		}
 
 		const updatedProject = await Project.query().upsertGraphAndFetch(graphData, options)
 
-		const oldSkillsOnProject = project.required_skills
+		const oldSkillsOnProject = project.skills
 		const oldTagsOnProject = project.has_tags
 
 		await updateCountSkills({ skillsWithIds: [...oldSkillsOnProject], type: 'required_skills' })
@@ -76,7 +76,7 @@ module.exports = async (req, res) => {
 		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
 
 		updatedProject.has_tags = tagsWithCountUpdated
-		updatedProject.required_skills = skillsWithCountUpdated
+		updatedProject.skills = skillsWithCountUpdated
 
 		res.status(200).json({ updatedProject })
 		// @todo images

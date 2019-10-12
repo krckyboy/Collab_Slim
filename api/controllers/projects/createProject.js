@@ -39,13 +39,13 @@ module.exports = async (req, res) => {
 		const graphData = {
 			...projectObject, // Key value pairs such as: name, description, url
 			owner_id: req.user.id,
-			required_skills: skillsWithIds,
+			skills: skillsWithIds,
 			has_tags: tagsWithIds
 		}
 
 		const options = {
-			relate: ['required_skills', 'has_tags'],
-			unrelate: ['required_skills', 'has_tags']
+			relate: ['skills', 'has_tags'],
+			unrelate: ['skills', 'has_tags']
 		}
 
 		const project = await Project.query().upsertGraphAndFetch(graphData, options)
@@ -54,7 +54,7 @@ module.exports = async (req, res) => {
 		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
 
 		project.has_tags = tagsWithCountUpdated
-		project.required_skills = skillsWithCountUpdated
+		project.skills = skillsWithCountUpdated
 
 		res.status(201).json({ project })
 		// @todo images

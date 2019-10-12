@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
 
 		const projects = await Project.query()
 			.select('projects.id', 'projects.name', 'projects.owner_id')
-			.eager('[owner, required_skills, has_tags]')
+			.eager('[owner, skills, has_tags]')
 			.modifyEager('owner', builder => builder.select('id', 'name'))
 			.whereNot({ archived: true })
 			.whereNotIn('projects.owner_id', User.query().select('users.id').joinRelation('blockedMembers').where('target_id', req.user.id))

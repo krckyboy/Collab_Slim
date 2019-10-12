@@ -156,10 +156,10 @@ test('Delete user + check skills, tags, projects', async () => {
 		.expect(200)
 
 	// Check the number of projects
-	const projects = await Project.query().eager('[required_skills, has_tags]')
+	const projects = await Project.query().eager('[skills, has_tags]')
 	expect(projects.length).toBe(1)
 	expect(projects[0].owner_id).toBe(userTwo.id)
-	expect(projects[0].required_skills.length).toBe(2)
+	expect(projects[0].skills.length).toBe(2)
 	expect(projects[0].has_tags.length).toBe(1)
 	expect(projects[0].has_tags[0].name).toBe('ecommerce')
 
@@ -499,7 +499,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 		values: { ...projectUserOneEdited }
 	})
 
-	expect(projectUserOneFetched3.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched3.project.skills.length).toBe(2)
 	expect(projectUserOneFetched3.project.has_tags.length).toBe(1)
 
 	// Check if skills are updated properly
@@ -516,7 +516,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	const projectUserOneFetched4 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 
 	expect(projectUserOneFetched4.project.archived).toBe(true)
-	expect(projectUserOneFetched4.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched4.project.skills.length).toBe(2)
 	expect(projectUserOneFetched4.project.has_tags.length).toBe(1)
 
 	// Check if skills are updated properly
@@ -542,7 +542,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	const projectUserOneFetched5 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 
 	expect(projectUserOneFetched5.project.archived).toBe(false)
-	expect(projectUserOneFetched5.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched5.project.skills.length).toBe(2)
 	expect(projectUserOneFetched5.project.has_tags.length).toBe(1)
 
 	compareValues({
@@ -564,7 +564,7 @@ test('/createP, /archiveP, /editP, /unarchiveP /deleteP', async () => {
 	// Check project data along with skills and tags
 	const projectUserOneFetched6 = await fetchProjectById(userOne.token, projectUserOne.id, 200)
 	expect(projectUserOneFetched6.project.archived).toBe(false)
-	expect(projectUserOneFetched6.project.required_skills.length).toBe(2)
+	expect(projectUserOneFetched6.project.skills.length).toBe(2)
 	expect(projectUserOneFetched6.project.has_tags.length).toBe(2)
 
 	compareValues({
@@ -694,7 +694,7 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	expect(projectsWithUserOneSkills4.length).toBe(1)
 	expect(projectsWithUserOneSkills4[0].id).toBe(projectUserFour.id)
 	expect(projectsWithUserOneSkills4[0].matchedSkills).toBe(1)
-	expect(projectsWithUserOneSkills4[0].required_skills[0].name).toBe('python')
+	expect(projectsWithUserOneSkills4[0].skills[0].name).toBe('python')
 
 	// User one fetches users with required skills, check if correct and order good
 	// User one blocks user two
