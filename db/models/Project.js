@@ -9,6 +9,7 @@ class Project extends Model {
 		const User = require('./User')
 		const Skill = require('./Skill')
 		const Tag = require('./Tag')
+		const ProjectApplication = require('./ProjectApplication')
 
 		return {
 			owner: {
@@ -42,7 +43,16 @@ class Project extends Model {
 					},
 					to: 'tags.id'
 				}
-			}
+			},
+			projectApplications: {
+				relation: Model.HasManyRelation,
+				modelClass: ProjectApplication,
+				join: {
+					from: 'projects.id',
+					to: 'project_applications.project_id',
+					extra: ['message', 'email', 'status'],
+				}
+			},
 		}
 	}
 }

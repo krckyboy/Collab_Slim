@@ -16,8 +16,14 @@ const createProjectValidation = [
 	check('description', 'Description is required!').exists(), // @todo Set the length to a paragraph for better content.
 ]
 
+const projectApplicationValidation = [
+	check('email', 'Please include a valid email!').isEmail(),
+	check('message', 'Message is required!').exists(),
+]
+
 module.exports = {
 	registerUserValidation,
 	loginUserValidation,
-	createProjectValidation
+	createProjectValidation,
+	projectApplicationValidation,
 }

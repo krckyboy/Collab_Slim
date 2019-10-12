@@ -183,13 +183,35 @@ exports.up = knex => {
 				.unsigned()
 				.references('id')
 				.inTable('events')
-				.onDelete('SET NULL')
+				.onDelete('CASCADE')
+				.index()
+		})
+		.createTable('project_applications', table => {
+			table.increments('id').primary()
+			table.timestamps(true, true)
+			table.string('message')
+			table.string('email')
+			table.string('status')
+			table
+				.integer('user_id')
+				.unsigned()
+				.references('id')
+				.inTable('users')
+				.onDelete('CASCADE')
+				.index()
+			table
+				.integer('project_id')
+				.unsigned()
+				.references('id')
+				.inTable('projects')
+				.onDelete('CASCADE')
 				.index()
 		})
 }
 
 exports.down = knex => {
 	return knex.schema
+		.dropTableIfExists('project_applications')
 		.dropTableIfExists('notifications')
 		.dropTableIfExists('required_skills')
 		.dropTableIfExists('has_tags')

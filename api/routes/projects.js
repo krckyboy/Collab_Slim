@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const auth = require('../middleware/auth')
-const { createProjectValidation } = require('../validation/index')
+const { createProjectValidation, projectApplicationValidation } = require('../validation/index')
 const multer = require('multer')
 
 const upload = multer({
@@ -44,6 +44,11 @@ router.post('/:project_id/add_image',
 		res.status(400).json({ error: error.message })
 	}
 )
+
+// @route 	POST api/projects/project_application/:project_id
+// @desc 	Apply for project with message and email for contact
+// @access 	Private
+router.post('/project_application/:project_id', [auth, projectApplicationValidation], require('../controllers/projects/sendProjectApplication.js'))
 
 // @route 	PUT api/projects/:project_id
 // @desc 	Edit a project
