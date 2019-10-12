@@ -16,27 +16,18 @@ module.exports = async (req, res) => {
 		const { blockedMembers } = user
 		const blockedUsersIdsArr = blockedMembers.map(u => u.id)
 
-		const projects = await Project
-			.query()
-			.eager('[owner.[blockedMembers], required_skills, has_tags]')
+		const projects = await Project.query()
+			.select('projects.id', 'projects.name', 'projects.owner_id')
+			.eager('[owner, required_skills, has_tags]')
 			.modifyEager('owner', builder => builder.select('id', 'name'))
-			.range(start, end)
-			.where({ archived: false })
+			.whereNot({ archived: true })
+			.whereNotIn('projects.owner_id', User.query().select('users.id').joinRelation('blockedMembers').where('target_id', req.user.id))
 			.whereNot('projects.owner_id', req.user.id) // Skipping projects of user
 			.whereNotIn('projects.owner_id', blockedUsersIdsArr) // Skipping projects of users who req.user blocked
+			.range(start, end)
 			.orderBy('created_at', 'desc')
 
-		const projectsWhereUserIdIsntBlocked = projects.results.filter(p => {
-			const blockedMembersIds = p.owner.blockedMembers.map(u => u.id)
-			if (!blockedMembersIds.includes(req.user.id)) return true
-		})
-
-		// Delete banned_members on each project.owner for privacy issues
-		projectsWhereUserIdIsntBlocked.forEach(p => {
-			delete p.owner.blockedMembers
-		})
-
-		return res.json({ projects: projectsWhereUserIdIsntBlocked })
+		return res.json({ projects: projects.results })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

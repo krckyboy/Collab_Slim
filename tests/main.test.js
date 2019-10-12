@@ -875,7 +875,7 @@ test('/getLatestProjectsPagination', async () => {
 
 	// User one blocks user two
 	// News feed check
-	// User two unblocks user two
+	// User one unblocks user two
 	await blockUser(userOne.token, userTwo.id, 200)
 
 	const { projects: projectsFeed2 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
@@ -884,6 +884,23 @@ test('/getLatestProjectsPagination', async () => {
 	expect(projectsFeed2[1].id).toBe(projectUserThreeFirst.id)
 
 	await unblockUser(userOne.token, userTwo.id, 200)
+
+	// User two blocks user one
+	// News feed check
+	await blockUser(userTwo.token, userOne.id, 200)
+
+	const { projects: projectsFeed3 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
+	expect(projectsFeed3.length).toBe(2)
+	expect(projectsFeed3[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed3[1].id).toBe(projectUserThreeFirst.id)
+
+	await unblockUser(userTwo.token, userOne.id, 200)
+
+	// Check if pagination works
+	const { projects: projectsFeed4 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 1 })
+	expect(projectsFeed4.length).toBe(2)
+	expect(projectsFeed4[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed4[1].id).toBe(projectUserThreeFirst.id)
 })
 
 test('/fetchPotentialUsers pagination', async () => {
