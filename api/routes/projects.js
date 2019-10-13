@@ -50,6 +50,11 @@ router.post('/:project_id/add_image',
 // @access 	Private
 router.post('/project_application/:project_id', [auth, projectApplicationValidation], require('../controllers/projects/sendProjectApplication.js'))
 
+// @route 	POST api/projects/potential_candidate/:project_id/:user_id
+// @desc 	Mark a user as a potential candidate
+// @access 	Private
+router.post('/potential_candidate/:project_id/:user_id', [auth], require('../controllers/projects/markUserAsPotentialCandidate.js'))
+
 // @route 	GET api/projects/project_application/:project_id
 // @desc 	Get project applications for projectId
 // @access 	Private
