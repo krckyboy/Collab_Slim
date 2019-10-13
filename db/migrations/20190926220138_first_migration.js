@@ -60,9 +60,9 @@ exports.up = knex => {
 			table.timestamps(true, true)
 			table.string('name')
 			table.string('description')
-			table.string('url')			
-			table.string('location')			
-			table.specificType('images', 'text array')			
+			table.string('url')
+			table.string('location')
+			table.specificType('images', 'text array')
 			table.boolean('paid')
 			table.boolean('remote')
 			table.boolean('archived').defaultTo(false)
@@ -207,10 +207,30 @@ exports.up = knex => {
 				.onDelete('CASCADE')
 				.index()
 		})
+		.createTable('potential_candidates', table => {
+			table.increments('id').primary()
+			table.timestamps(true, true)
+			table
+				.integer('user_id') // the potential candidate 
+				.unsigned()
+				.references('id')
+				.inTable('users')
+				.onDelete('CASCADE')
+				.index()
+			table
+				.integer('project_id')
+				.unsigned()
+				.references('id')
+				.inTable('projects')
+				.onDelete('CASCADE')
+				.index()
+		})
+
 }
 
 exports.down = knex => {
 	return knex.schema
+		.dropTableIfExists('potential_candidates')
 		.dropTableIfExists('project_applications')
 		.dropTableIfExists('notifications')
 		.dropTableIfExists('required_skills')
