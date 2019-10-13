@@ -355,6 +355,25 @@ async function fetchLatestProjectsPagination({ token, start, end, status = 200 }
 	return res.body
 }
 
+async function sendProjectApplication({ token, projectId, status = 201, application }) {
+	const res = await request(app)
+		.post(`/api/projects/project_application/${projectId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.send({ ...application })
+		.expect(status)
+
+	return res.body
+}
+
+async function getNotifications(token, status = 200) {
+	const res = await request(app)
+		.get('/api/users/notifications')
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -397,4 +416,6 @@ module.exports = {
 	fetchTags,
 	fetchSkills,
 	fetchLatestProjectsPagination,
+	sendProjectApplication,
+	getNotifications,
 }

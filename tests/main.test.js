@@ -50,6 +50,7 @@ const {
 	getOccurrence,
 	checkEventsLength,
 	fetchLatestProjectsPagination,
+	sendProjectApplication,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -58,6 +59,7 @@ const Tag = require('../db/models/Tag')
 const Project = require('../db/models/Project')
 const Event = require('../db/models/Event')
 const Notification = require('../db/models/Notification')
+const ProjectApplication = require('../db/models/ProjectApplication')
 
 beforeEach(async () => {
 	await User.query().delete()
@@ -66,6 +68,7 @@ beforeEach(async () => {
 	await Event.query().delete()
 	await Tag.query().delete()
 	await Notification.query().delete()
+	await ProjectApplication.query().delete()
 	await registerNewUser(userOne, 201)
 })
 
@@ -76,6 +79,7 @@ afterAll(async () => {
 	await Tag.query().delete()
 	await Event.query().delete()
 	await Notification.query().delete()
+	await ProjectApplication.query().delete()
 })
 
 test('Registration [201, 400]', async () => {
@@ -984,4 +988,45 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	expect(potentialProjectsUserSeven2[0].matchedSkills).toBe(5)
 	expect(potentialProjectsUserSeven2[1].id).toBe(projectUserTwoSecond.id)
 	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
+})
+
+test('/sendProjectApplication', async () => {
+	// Users registering
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userThree, 201)
+	await registerNewUser(userFour, 201)
+
+	// User one creates a project
+	const { project } = await createProject({ ...projectUserOne1 }, userOne.token, 201)
+
+	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
+	const applicationUserThreeData = { message: 'Please check my profile if you are interested in hiring me.', email: 'userthree@gmail.com', }
+	const applicationUserFourData = { message: 'Please check my profile if you are interested in hiring me.', email: 'userfour@gmail.com', }
+
+	// User one sends a project application for user one's project
+	const { projectApplication: projectApplicationUserTwo } = await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData } })
+	expect(projectApplicationUserTwo.user_id).toBe(userTwo.id)
+	expect(projectApplicationUserTwo.project_id).toBe(project.id)
+	expect(projectApplicationUserTwo.status).toBe('sent')
+	expect(projectApplicationUserTwo.message).toBe(applicationUserTwoData.message)
+	expect(projectApplicationUserTwo.email).toBe(applicationUserTwoData.email)
+
+	// Check if there's a project application in the db
+	const projectApplications = await ProjectApplication.query()
+	expect(projectApplications.length).toBe(1)
+
+	// Check if user one receives a notification
+	const { notifications: notificationsUserOne } = await getNotifications(userOne.token, 200)
+	expect(notificationsUserOne.length).toBe(1)
+
+	// User one tries to send an application again
+	await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData }, status: 400 })
+
+	// User one blocks user three, user three tries to send application
+	await blockUser(userOne.token, userThree.id, 200)
+	await sendProjectApplication({ token: userThree.token, projectId: project.id, application: { ...applicationUserThreeData }, status: 404 })
+
+	// User four blocks user one
+	await blockUser(userFour.token, userOne.id, 200)
+	await sendProjectApplication({ token: userFour.token, projectId: project.id, application: { ...applicationUserFourData }, status: 404 })
 })
