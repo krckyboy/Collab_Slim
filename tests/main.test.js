@@ -993,7 +993,7 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
 })
 
-test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProjectApplicationRead', async () => {
+test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProjectApplicationRead, /markProjectApplicationArchived', async () => {
 	// Users registering
 	await registerNewUser(userTwo, 201)
 	await registerNewUser(userThree, 201)
