@@ -52,6 +52,7 @@ const {
 	fetchLatestProjectsPagination,
 	sendProjectApplication,
 	getProjectApplications,
+	markProjectApplicationRead,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -991,7 +992,7 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
 })
 
-test('/sendProjectApplication, /getProjectApplicationsForProjectId', async () => {
+test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProjectApplicationRead', async () => {
 	// Users registering
 	await registerNewUser(userTwo, 201)
 	await registerNewUser(userThree, 201)
@@ -1058,4 +1059,12 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId', async () =>
 	expect(projectApplicationsFetched3.length).toBe(2)
 	expect(projectApplicationsFetched3[0].id).toBe(projectApplicationUserThree.id)
 	expect(projectApplicationsFetched3[1].id).toBe(projectApplicationUserTwo.id)
+
+	// User one marks PAU4 and PAU3 read
+	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserFour.id })
+	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserThree.id })
+
+	// User one fetches only read applications
+	const { projectApplications: projectApplicationsFetched4 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'read'})
+	expect(projectApplicationsFetched4.length).toBe(2)
 })

@@ -383,6 +383,15 @@ async function getProjectApplications({ token, projectId, status = 200, start, e
 	return res.body
 }
 
+async function markProjectApplicationRead({ token, projectApplicationId, status = 200 }) {
+	const res = await request(app)
+		.patch(`/api/projects/project_application_read/${projectApplicationId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -428,4 +437,5 @@ module.exports = {
 	sendProjectApplication,
 	getNotifications,
 	getProjectApplications,
+	markProjectApplicationRead,
 }
