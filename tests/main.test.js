@@ -51,6 +51,7 @@ const {
 	checkEventsLength,
 	fetchLatestProjectsPagination,
 	sendProjectApplication,
+	getProjectApplications,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -990,7 +991,7 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
 })
 
-test('/sendProjectApplication', async () => {
+test('/sendProjectApplication, /getProjectApplicationsForProjectId', async () => {
 	// Users registering
 	await registerNewUser(userTwo, 201)
 	await registerNewUser(userThree, 201)
@@ -1029,4 +1030,32 @@ test('/sendProjectApplication', async () => {
 	// User four blocks user one
 	await blockUser(userFour.token, userOne.id, 200)
 	await sendProjectApplication({ token: userFour.token, projectId: project.id, application: { ...applicationUserFourData }, status: 404 })
+
+	// User one fetches project invitations for project
+	const { projectApplications: projectApplicationsFetched } = await getProjectApplications({ token: userOne.token, projectId: project.id })
+	expect(projectApplicationsFetched.length).toBe(1)
+
+	// User two fails to fetch project invitations for project
+	await getProjectApplications({ token: userTwo.token, projectId: project.id, status: 401 })
+
+	// Users get unblocked
+	await unblockUser(userOne.token, userThree.id, 200)
+	await unblockUser(userFour.token, userOne.id, 200)
+
+	// User three and four send project applications
+	const { projectApplication: projectApplicationUserThree } = await sendProjectApplication({ token: userThree.token, projectId: project.id, application: { ...applicationUserThreeData }, })
+	const { projectApplication: projectApplicationUserFour } = await sendProjectApplication({ token: userFour.token, projectId: project.id, application: { ...applicationUserFourData }, })
+
+	// User one fetches project invitations for project
+	const { projectApplications: projectApplicationsFetched2 } = await getProjectApplications({ token: userOne.token, projectId: project.id })
+	expect(projectApplicationsFetched2.length).toBe(3)
+	expect(projectApplicationsFetched2[0].id).toBe(projectApplicationUserFour.id)
+	expect(projectApplicationsFetched2[1].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched2[2].id).toBe(projectApplicationUserTwo.id)
+
+	// User one fetches project invitations for project with pagination
+	const { projectApplications: projectApplicationsFetched3 } = await getProjectApplications({ token: userOne.token, projectId: project.id, start: 1, end: 2 })
+	expect(projectApplicationsFetched3.length).toBe(2)
+	expect(projectApplicationsFetched3[0].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched3[1].id).toBe(projectApplicationUserTwo.id)
 })

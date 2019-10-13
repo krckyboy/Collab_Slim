@@ -50,6 +50,11 @@ router.post('/:project_id/add_image',
 // @access 	Private
 router.post('/project_application/:project_id', [auth, projectApplicationValidation], require('../controllers/projects/sendProjectApplication.js'))
 
+// @route 	GET api/projects/project_application/:project_id
+// @desc 	Get project applications for projectId
+// @access 	Private
+router.get('/project_applications/:project_id', [auth], require('../controllers/projects/getProjectApplicationsForProjectId.js'))
+
 // @route 	PUT api/projects/:project_id
 // @desc 	Edit a project
 // @access 	Private

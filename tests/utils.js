@@ -374,6 +374,15 @@ async function getNotifications(token, status = 200) {
 	return res.body
 }
 
+async function getProjectApplications({ token, projectId, status = 200, start, end, type = '' }) {
+	const res = await request(app)
+		.get(`/api/projects/project_applications/${projectId}?start=${start}&end=${end}&type=${type}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -418,4 +427,5 @@ module.exports = {
 	fetchLatestProjectsPagination,
 	sendProjectApplication,
 	getNotifications,
+	getProjectApplications,
 }
