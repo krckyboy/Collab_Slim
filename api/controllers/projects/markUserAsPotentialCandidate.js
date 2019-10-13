@@ -7,18 +7,9 @@ module.exports = async (req, res) => {
 	try {
 		const projectId = parseInt(req.params.project_id)
 		const userId = parseInt(req.params.user_id)
-		const message = String(req.body.message)
-		const email = String(req.body.email)
 
 		const project = await Project.query().findById(projectId).joinEager('potentialCandidates')
 		const { potentialCandidates, owner_id: ownerId } = project
-
-		const user = await User.query().findById(userId)
-
-		// If user doesn't exist
-		if (!user) {
-			return res.status(404).json({ msg: 'No user found!' })
-		}
 
 		// If project doesn't exist
 		if (!project) {
@@ -33,6 +24,13 @@ module.exports = async (req, res) => {
 		// Check if owner
 		if (ownerId !== req.user.id) {
 			return res.status(400).json({ msg: 'You are not the owner of this project!' })
+		}
+
+		const user = await User.query().findById(userId)
+
+		// If user doesn't exist
+		if (!user) {
+			return res.status(404).json({ msg: 'No user found!' })
 		}
 
 		// Check if blocked in both ways

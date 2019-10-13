@@ -24,6 +24,7 @@ module.exports = async function ({ type, projectId, targetUserId, triggeringUser
 				project_id: projectId,
 			})
 		case 'project_application_sent':
+		case 'potential_candidate_marked':
 			return await Event.query().insert({
 				specific_event_id: specificEvent.id,
 				type,
