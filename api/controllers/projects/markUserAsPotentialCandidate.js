@@ -68,7 +68,7 @@ module.exports = async (req, res) => {
 
 		// Create a notification with event for project owner
 		await event.$relatedQuery('notifications').insert({
-			user_to_notify: ownerId
+			user_to_notify: userId
 		})
 
 		return res.status(201).json({ potentialCandidate })

@@ -999,6 +999,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await registerNewUser(userTwo, 201)
 	await registerNewUser(userThree, 201)
 	await registerNewUser(userFour, 201)
+	await registerNewUser(userFive, 201)
 
 	// User one creates a project
 	const { project } = await createProject({ ...projectUserOne1 }, userOne.token, 201)
@@ -1077,4 +1078,12 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	const { projectApplications: projectApplicationsFetched5 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'archived'})
 	expect(projectApplicationsFetched5.length).toBe(1)
 	expect(projectApplicationsFetched5[0].id).toBe(projectApplicationUserThree.id)
+
+	// User one marks user five as a potential candidate
+
+	// User five checks notifications, finding the one about being marked
+
+	// User one gets all users that he marked as potential candidates
+
+	// User five gets all the projects where he's marked as a potential candidate
 })
