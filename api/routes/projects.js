@@ -56,9 +56,14 @@ router.post('/project_application/:project_id', [auth, projectApplicationValidat
 router.get('/project_applications/:project_id', [auth], require('../controllers/projects/getProjectApplicationsForProjectId.js'))
 
 // @route 	PATCH api/projects/project_application_read/:project_application_id
-// @desc 	Set  project applications for projectId
+// @desc 	Set project application read
 // @access 	Private
 router.patch('/project_application_read/:project_application_id', [auth], require('../controllers/projects/markProjectApplicationRead.js'))
+
+// @route 	PATCH api/projects/project_application_read/:project_application_id
+// @desc 	Set project application archived
+// @access 	Private
+router.patch('/project_application_archived/:project_application_id', [auth], require('../controllers/projects/markProjectApplicationArchived.js'))
 
 // @route 	PUT api/projects/:project_id
 // @desc 	Edit a project

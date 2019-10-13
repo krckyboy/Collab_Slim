@@ -12,6 +12,8 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No project application found!' })
 		}
 
+		const { status } = projectApplication
+
 		const project = await Project.query().findById(projectApplication.project_id)
 
 		// If project doesn't exist
@@ -24,14 +26,14 @@ module.exports = async (req, res) => {
 			return res.status(401).json({ msg: 'You\'re not the owner of this project!' })
 		}
 
-		if (projectApplication.status === 'sent') {
+		if (status === 'sent' || status === 'read') {
 			await projectApplication.$query().update({
-				status: 'read'
+				status: 'archived'
 			})
 			
 			return res.status(200).send()
-		} 
-		
+		}
+
 		return res.status(400).send()
 	} catch (err) {
 		console.error(err)

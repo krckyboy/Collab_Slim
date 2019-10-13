@@ -53,6 +53,7 @@ const {
 	sendProjectApplication,
 	getProjectApplications,
 	markProjectApplicationRead,
+	markProjectApplicationArchived,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -1060,11 +1061,19 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	expect(projectApplicationsFetched3[0].id).toBe(projectApplicationUserThree.id)
 	expect(projectApplicationsFetched3[1].id).toBe(projectApplicationUserTwo.id)
 
-	// User one marks PAU4 and PAU3 read
+	// User one marks PAU4  read
 	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserFour.id })
-	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserThree.id })
 
 	// User one fetches only read applications
 	const { projectApplications: projectApplicationsFetched4 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'read'})
-	expect(projectApplicationsFetched4.length).toBe(2)
+	expect(projectApplicationsFetched4.length).toBe(1)
+	expect(projectApplicationsFetched4[0].id).toBe(projectApplicationUserFour.id)
+
+	// User one marks PAU3 archived
+	await markProjectApplicationArchived({ token: userOne.token, projectApplicationId: projectApplicationUserThree.id })
+
+	// User one fetches archived PA
+	const { projectApplications: projectApplicationsFetched5 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'archived'})
+	expect(projectApplicationsFetched5.length).toBe(1)
+	expect(projectApplicationsFetched5[0].id).toBe(projectApplicationUserThree.id)
 })
