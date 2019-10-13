@@ -8,8 +8,8 @@ module.exports = async (req, res) => {
 		const projectId = parseInt(req.params.project_id)
 		const userId = parseInt(req.params.user_id)
 
-		const project = await Project.query().findById(projectId).joinEager('potentialCandidates')
-		const { potentialCandidates, owner_id: ownerId } = project
+		const project = await Project.query().findById(projectId).joinEager('[potentialCandidates, projectApplications]')
+		const { potentialCandidates, owner_id: ownerId, projectApplications } = project
 
 		// If project doesn't exist
 		if (!project) {
@@ -24,6 +24,13 @@ module.exports = async (req, res) => {
 		// Check if owner
 		if (ownerId !== req.user.id) {
 			return res.status(400).json({ msg: 'You are not the owner of this project!' })
+		}
+
+		// Check if user has sent the application
+		const existingApplication = projectApplications.find(application => application.user_id === userId)
+
+		if (existingApplication) {
+			return res.status(400).json({ msg: 'User has already sent his project application!', existingApplicationId: existingApplication.id })
 		}
 
 		const user = await User.query().findById(userId)

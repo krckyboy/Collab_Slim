@@ -401,6 +401,15 @@ async function markProjectApplicationArchived({ token, projectApplicationId, sta
 	return res.body
 }
 
+async function markPotentialCandidate({ token, projectId, userId, status = 200 }) {
+	const res = await request(app)
+		.post(`/api/projects/potential_candidate/${projectId}/:${userId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -448,4 +457,5 @@ module.exports = {
 	getProjectApplications,
 	markProjectApplicationRead,
 	markProjectApplicationArchived,
+	markPotentialCandidate,
 }

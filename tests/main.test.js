@@ -54,6 +54,7 @@ const {
 	getProjectApplications,
 	markProjectApplicationRead,
 	markProjectApplicationArchived,
+	markPotentialCandidate,
 } = require('./utils')
 
 const User = require('../db/models/User')
