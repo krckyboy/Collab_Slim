@@ -207,7 +207,7 @@ exports.up = knex => {
 				.onDelete('CASCADE')
 				.index()
 		})
-		.createTable('potential_candidates', table => {
+		.createTable('marked_candidates', table => {
 			table.increments('id').primary()
 			table.timestamps(true, true)
 			table
@@ -230,7 +230,7 @@ exports.up = knex => {
 
 exports.down = knex => {
 	return knex.schema
-		.dropTableIfExists('potential_candidates')
+		.dropTableIfExists('marked_candidates')
 		.dropTableIfExists('project_applications')
 		.dropTableIfExists('notifications')
 		.dropTableIfExists('required_skills')

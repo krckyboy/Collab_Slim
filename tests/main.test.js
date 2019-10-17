@@ -55,6 +55,7 @@ const {
 	markProjectApplicationRead,
 	markProjectApplicationArchived,
 	markPotentialCandidate,
+	fetchedMarkedPotentialCandidates,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -1067,7 +1068,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserFour.id })
 
 	// User one fetches only read applications
-	const { projectApplications: projectApplicationsFetched4 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'read'})
+	const { projectApplications: projectApplicationsFetched4 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'read' })
 	expect(projectApplicationsFetched4.length).toBe(1)
 	expect(projectApplicationsFetched4[0].id).toBe(projectApplicationUserFour.id)
 
@@ -1075,15 +1076,32 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await markProjectApplicationArchived({ token: userOne.token, projectApplicationId: projectApplicationUserThree.id })
 
 	// User one fetches archived PA
-	const { projectApplications: projectApplicationsFetched5 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'archived'})
+	const { projectApplications: projectApplicationsFetched5 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'archived' })
 	expect(projectApplicationsFetched5.length).toBe(1)
 	expect(projectApplicationsFetched5[0].id).toBe(projectApplicationUserThree.id)
 
 	// User one marks user five as a potential candidate
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userFive.id, status: 200 })
 
 	// User five checks notifications, finding the one about being marked
+	const { notifications: notificationsUserFive } = await getNotifications(userFive.token, 200)
+	expect(notificationsUserFive.length).toBe(1)
+	expect(notificationsUserFive[0].event.type).toBe('potential_candidate_marked')
+	expect(notificationsUserFive[0].event.project_id).toBe(project.id)
+	expect(notificationsUserFive[0].event.triggering_user_id).toBe(userOne.id)
+	expect(notificationsUserFive[0].event.target_user_id).toBe(userFive.id)
 
 	// User one gets all users that he marked as potential candidates
+	const { markedCandidates } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
+	expect(markedCandidates.length).toBe(1)
+	expect(markedCandidates[0].id).toBe(userFive.id)
+	
+	// User five blocks user one
+	await blockUser(userFive.token, userOne.id, 200)
+
+	// User one gets all users that he marked as potential candidates, expecting 0
+	const { markedCandidates: markedCandidatesAfterBlock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
+	expect(markedCandidatesAfterBlock.length).toBe(0)
 
 	// User five gets all the projects where he's marked as a potential candidate
 })

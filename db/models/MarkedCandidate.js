@@ -1,9 +1,9 @@
 
 const { Model } = require('objection')
 
-class PotentialCandidate extends Model {
+class MarkedCandidate extends Model {
 	static get tableName() {
-		return 'potential_candidates'
+		return 'marked_candidates'
 	}
 
 	static get relationMappings() {
@@ -16,7 +16,7 @@ class PotentialCandidate extends Model {
 				modelClass: User,
 				join: {
 					from: 'users.id',
-					to: 'potential_candidates.user_id'
+					to: 'marked_candidates.user_id'
 				}
 			},
 			project: {
@@ -24,11 +24,11 @@ class PotentialCandidate extends Model {
 				modelClass: Project,
 				join: {
 					from: 'projects.id',
-					to: 'potential_candidates.project_id'
+					to: 'marked_candidates.project_id'
 				}
 			},
 		}
 	}
 }
 
-module.exports = PotentialCandidate
+module.exports = MarkedCandidate

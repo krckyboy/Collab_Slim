@@ -403,7 +403,16 @@ async function markProjectApplicationArchived({ token, projectApplicationId, sta
 
 async function markPotentialCandidate({ token, projectId, userId, status = 200 }) {
 	const res = await request(app)
-		.post(`/api/projects/potential_candidate/${projectId}/:${userId}`)
+		.post(`/api/projects/marked_users/${projectId}/${userId}`)
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
+async function fetchedMarkedPotentialCandidates({ token, projectId, status = 200 }) {
+	const res = await request(app)
+		.get(`/api/projects/marked_users/${projectId}/`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
@@ -458,4 +467,5 @@ module.exports = {
 	markProjectApplicationRead,
 	markProjectApplicationArchived,
 	markPotentialCandidate,
+	fetchedMarkedPotentialCandidates,
 }

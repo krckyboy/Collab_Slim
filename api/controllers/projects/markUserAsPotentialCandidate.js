@@ -8,8 +8,16 @@ module.exports = async (req, res) => {
 		const projectId = parseInt(req.params.project_id)
 		const userId = parseInt(req.params.user_id)
 
-		const project = await Project.query().findById(projectId).joinEager('[potentialCandidates, projectApplications]')
-		const { potentialCandidates, owner_id: ownerId, projectApplications } = project
+		if (isNaN(projectId)) {
+			return res.status(404).json({ msg: 'No project found!' })
+		}
+
+		if (isNaN(userId)) {
+			return res.status(404).json({ msg: 'No user found!' })
+		}
+
+		const project = await Project.query().findById(projectId).joinEager('[markedCandidates, projectApplications]')
+		const { markedCandidates, owner_id: ownerId, projectApplications } = project
 
 		// If project doesn't exist
 		if (!project) {
@@ -26,6 +34,11 @@ module.exports = async (req, res) => {
 			return res.status(400).json({ msg: 'You are not the owner of this project!' })
 		}
 
+		// Check if blocked in either way
+		if (await checkIfBlocked(req.user.id, userId) || await checkIfBlocked(userId, req.user.id)) {
+			return res.status(404).json({ msg: 'No user found!' })
+		}
+
 		// Check if user has sent the application
 		const existingApplication = projectApplications.find(application => application.user_id === userId)
 
@@ -40,26 +53,19 @@ module.exports = async (req, res) => {
 			return res.status(404).json({ msg: 'No user found!' })
 		}
 
-		// Check if blocked in both ways
-		if (await checkIfBlocked(req.user.id, userId) || await checkIfBlocked(userId, req.user.id)) {
-			return res.status(404).json({ msg: 'No user found!' })
-		}
-
 		// Check if already marked as potential candidate
-		const existingPotentialCandidate = potentialCandidates.find(potentialCandidate => potentialCandidate.user_id === userId)
+		const existingMarkedCandidate = markedCandidates.find(markedCandidate => markedCandidate.user_id === userId)
 
-		if (existingPotentialCandidate) {
+		if (existingMarkedCandidate) {
 			return res.status(400).json({ msg: 'You\'ve already sent request to join!' })
 		}
 
-		// Create a project application
-		const potentialCandidate = await project.$relatedQuery('potentialCandidates').insert({
-			user_id: req.user.id,
-		})
+		// Mark the user as potential candidate
+		const markedCandidate = await project.$relatedQuery('markedCandidates').relate({ id: userId })
 
 		// Create an event
 		const event = await createEvent({
-			specificEvent: potentialCandidate,
+			specificEvent: markedCandidate,
 			type: 'potential_candidate_marked',
 			targetUserId: userId,
 			triggeringUserId: req.user.id,
@@ -71,7 +77,7 @@ module.exports = async (req, res) => {
 			user_to_notify: userId
 		})
 
-		return res.status(201).json({ potentialCandidate })
+		return res.status(200).json({ markedCandidate: markedCandidate })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

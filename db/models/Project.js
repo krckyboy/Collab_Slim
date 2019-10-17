@@ -10,7 +10,7 @@ class Project extends Model {
 		const Skill = require('./Skill')
 		const Tag = require('./Tag')
 		const ProjectApplication = require('./ProjectApplication')
-		const PotentialCandidate = require('./PotentialCandidate')
+		const MarkedCandidate = require('./MarkedCandidate')
 
 		return {
 			owner: {
@@ -54,12 +54,16 @@ class Project extends Model {
 					extra: ['message', 'email', 'status'],
 				}
 			},
-			potentialCandidates: {
-				relation: Model.HasManyRelation,
-				modelClass: PotentialCandidate,
+			markedCandidates: {
+				relation: Model.ManyToManyRelation,
+				modelClass: User,
 				join: {
 					from: 'projects.id',
-					to: 'potential_candidates.project_id',
+					through: {
+						from: 'marked_candidates.project_id',
+						to: 'marked_candidates.user_id',
+					},
+					to: 'users.id',
 				}
 			},
 		}
