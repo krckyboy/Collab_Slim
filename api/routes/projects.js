@@ -60,6 +60,11 @@ router.post('/marked_users/:project_id/:user_id', [auth], require('../controller
 // @access 	Private
 router.get('/marked_users/:project_id/', [auth], require('../controllers/projects/fetchMarkedPotentialUsers.js'))
 
+// @route 	GET api/projects/projects_where_user_is_marked/
+// @desc 	Get all projects where logged user is marked as a potential candidate
+// @access 	Private
+router.get('/projects_where_user_is_marked/', [auth], require('../controllers/projects/fetchProjectsWhereLoggedUserIsMarked.js'))
+
 // @route 	GET api/projects/project_application/:project_id
 // @desc 	Get project applications for projectId
 // @access 	Private

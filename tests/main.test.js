@@ -56,6 +56,7 @@ const {
 	markProjectApplicationArchived,
 	markPotentialCandidate,
 	fetchedMarkedPotentialCandidates,
+	fetchProjectsWhereLoggedUserIsMarked,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -1095,13 +1096,47 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	const { markedCandidates } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
 	expect(markedCandidates.length).toBe(1)
 	expect(markedCandidates[0].id).toBe(userFive.id)
-	
+
 	// User five blocks user one
+	// User one gets all users that he marked as potential candidates, expecting 0
+	// User five unblocks user one
 	await blockUser(userFive.token, userOne.id, 200)
 
-	// User one gets all users that he marked as potential candidates, expecting 0
 	const { markedCandidates: markedCandidatesAfterBlock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
 	expect(markedCandidatesAfterBlock.length).toBe(0)
 
+	await unblockUser(userFive.token, userOne.id, 200)
+
+	// User one blocks user five
+	// User one gets all users that he marked as potential candidates, expecting 0
+	await blockUser(userOne.token, userFive.id, 200)
+
+	const { markedCandidates: markedCandidatesAfterBlock2 } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
+	expect(markedCandidatesAfterBlock2.length).toBe(0)
+
+	await unblockUser(userOne.token, userFive.id, 200)
+
+	const { markedCandidates: markedCandidatesAfterUnblock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
+	expect(markedCandidatesAfterUnblock.length).toBe(1)
+	expect(markedCandidatesAfterUnblock[0].id).toBe(userFive.id)
+
 	// User five gets all the projects where he's marked as a potential candidate
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked1 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
+	expect(projectsWhereUserIsMarked1.length).toBe(1)
+
+	// User five gets all projects (0) after blocking user one
+	await blockUser(userFive.token, userOne.id, 200)
+
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked2 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
+	expect(projectsWhereUserIsMarked2.length).toBe(0)
+
+	await unblockUser(userFive.token, userOne.id, 200)
+
+	// User five gets all projects (0) after user one blocks him
+	await blockUser(userOne.token, userFive.id, 200)
+
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked3 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
+	expect(projectsWhereUserIsMarked3.length).toBe(0)
+	
+	await unblockUser(userOne.token, userFive.id, 200)
 })

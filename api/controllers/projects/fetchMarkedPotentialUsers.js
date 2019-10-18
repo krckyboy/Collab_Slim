@@ -24,14 +24,21 @@ module.exports = async (req, res) => {
 
 		// Fetch only candidates that haven't blocked req.user.id
 		const blockedUserIdSubquery = User.relatedQuery('blockedMembers').where('blocked_members.target_id', req.user.id)
+		
+		// Fetch blocked members of project owner
+		const { blockedMembers: blockedFromProjectOwner } = await User.query().findById(req.user.id).eager('blockedMembers')
+		const blockedMembersFromProjectOwnerIds = blockedFromProjectOwner.map(u => u.id)
 
 		// Get user IDs
 		const userIds = markedCandidates.map(user => user.id)
 
+		// User IDs after filtering out users that req.user.id blocked
+		const filteredUserIds = userIds.filter(id => !blockedMembersFromProjectOwnerIds.includes(id))
+
 		const users = await User.query()
 			.select('users.id', 'users.name')
 			.whereNotExists(blockedUserIdSubquery.clone())
-			.whereIn('users.id', userIds)
+			.whereIn('users.id', filteredUserIds)
 
 		return res.status(200).json({ markedCandidates: users })
 	} catch (err) {

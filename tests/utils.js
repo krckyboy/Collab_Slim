@@ -419,6 +419,15 @@ async function fetchedMarkedPotentialCandidates({ token, projectId, status = 200
 	return res.body
 }
 
+async function fetchProjectsWhereLoggedUserIsMarked({ token, status = 200 }) {
+	const res = await request(app)
+		.get('/api/projects/projects_where_user_is_marked')
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -468,4 +477,5 @@ module.exports = {
 	markProjectApplicationArchived,
 	markPotentialCandidate,
 	fetchedMarkedPotentialCandidates,
+	fetchProjectsWhereLoggedUserIsMarked,
 }
