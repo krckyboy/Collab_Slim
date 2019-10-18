@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
 
 		// Check if blocked in either way
 		if (await checkIfBlocked(req.user.id, userId) || await checkIfBlocked(userId, req.user.id)) {
-			return res.status(404).json({ msg: 'No user found!' })
+			return res.status(403).send()
 		}
 
 		// Check if user has sent the application

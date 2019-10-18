@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
 
 		// Check if blocked in both ways
 		if (await checkIfBlocked(userId, ownerId) || await checkIfBlocked(ownerId, userId)) {
-			return res.status(403).json({ msg: 'No user found!' })
+			return res.status(403).send()
 		}
 
 		// Check if owner
