@@ -15,8 +15,13 @@ module.exports = async (req, res) => {
 		}
 
 		const projectId = parseInt(req.params.project_id)
+
+		if (isNaN(projectId)) {
+			return res.status(404).json({ msg: 'No project found!' })
+		}
+
 		const project = await Project.query().findById(projectId)
-		
+
 		// If project doesn't exist
 		if (!project) {
 			return res.status(404).json({ msg: 'No project found!' })

@@ -57,6 +57,7 @@ const {
 	markPotentialCandidate,
 	fetchedMarkedPotentialCandidates,
 	fetchProjectsWhereLoggedUserIsMarked,
+	getSingleProjectApplication,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -1148,4 +1149,8 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await fetchProjectById(userFive.token, project.id, 403 )
 
 	await unblockUser(userOne.token, userFive.id, 200)
+
+
+	// @todo Go up and test if getAllApplications works for those who are blocked afterwards 
+	// @todo Go up and test if getSpecificApplication works after checking ^
 })

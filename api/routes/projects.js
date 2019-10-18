@@ -70,6 +70,11 @@ router.get('/projects_where_user_is_marked/', [auth], require('../controllers/pr
 // @access 	Private
 router.get('/project_applications/:project_id', [auth], require('../controllers/projects/getProjectApplicationsForProjectId.js'))
 
+// @route 	GET api/projects/project_application/:project_id
+// @desc 	Get project application by application_id
+// @access 	Private
+router.get('/project_application/:project_application_id', [auth], require('../controllers/projects/getProjectApplicationByApplicationId.js'))
+
 // @route 	PATCH api/projects/project_application_read/:project_application_id
 // @desc 	Set project application read
 // @access 	Private
