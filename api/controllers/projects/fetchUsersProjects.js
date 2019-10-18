@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 		}
 
 		if (await checkIfBlocked(userId, req.user.id) || await checkIfBlocked(req.user.id, userId)) {
-			return res.status(404).json({ msg: 'No user found!' })
+			return res.status(403).json({ msg: 'No user found!' })
 		}
 
 		const user = await User.query().select('id').findById(userId)

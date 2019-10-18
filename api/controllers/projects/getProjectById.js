@@ -12,9 +12,9 @@ module.exports = async (req, res) => {
 			.modifyEager('owner', builder => builder.select('id', 'name'))
 
 		// Returns true if user has blocked targetId, otherwise false
-		// If logged user has blocked the project owner, also 404
+		// If logged user has blocked the project owner, also 403
 		if (await checkIfBlocked(project.owner_id, req.user.id) || await checkIfBlocked(req.user.id, project.owner_id)) {
-			return res.status(404).json({ msg: 'No project found!' })
+			return res.status(403).json({ msg: 'No project found!' })
 		}
 
 		return res.json({ project })

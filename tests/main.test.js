@@ -226,20 +226,20 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	expect(blockedMembers.length).toBe(2)
 	expect([userTwo.id, userThree.id].some(id => blockedMembers.map(user => user.id).includes(id))).toBe(true)
 
-	// User one tries to fetch user two [404]
-	await fetchUserById(userOne.token, userTwo.id, 404)
+	// User one tries to fetch user two [403]
+	await fetchUserById(userOne.token, userTwo.id, 403)
 
-	// User one tries to fetch user three [404]
-	await fetchUserById(userOne.token, userThree.id, 404)
+	// User one tries to fetch user three [403]
+	await fetchUserById(userOne.token, userThree.id, 403)
 
-	// User one tries to fetch user two's project [404]
-	await fetchProjectById(userOne.token, projectUserTwo.id, 404)
+	// User one tries to fetch user two's project [403]
+	await fetchProjectById(userOne.token, projectUserTwo.id, 403)
 
-	// User two tries to fetch user one [404]
-	await fetchUserById(userTwo.token, userOne.id, 404)
+	// User two tries to fetch user one [403]
+	await fetchUserById(userTwo.token, userOne.id, 403)
 
-	// User two tries to fetch user one's project [404]
-	await fetchProjectById(userTwo.token, projectUserOne.id, 404)
+	// User two tries to fetch user one's project [403]
+	await fetchProjectById(userTwo.token, projectUserOne.id, 403)
 
 	// User one unblocks user two
 	await unblockUser(userOne.token, userTwo.id, 200)
@@ -640,14 +640,14 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	// User two can't fetch user one's projects
 	// User two unblocks user one
 	await blockUser(userTwo.token, userOne.id, 200)
-	await fetchUsersProjects(userOne.id, userTwo.token, 404)
+	await fetchUsersProjects(userOne.id, userTwo.token, 403)
 	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// User 1 blocks user 2
 	// User 2 cannot fetch user 1's projects
 	// User 1 unblocks user 2
 	await blockUser(userOne.token, userTwo.id, 200)
-	await fetchUsersProjects(userTwo.id, userOne.token, 404)
+	await fetchUsersProjects(userTwo.id, userOne.token, 403)
 	await unblockUser(userOne.token, userTwo.id, 200)
 
 	// User two fetches user one's projects successfully
@@ -1031,11 +1031,11 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 
 	// User one blocks user three, user three tries to send application
 	await blockUser(userOne.token, userThree.id, 200)
-	await sendProjectApplication({ token: userThree.token, projectId: project.id, application: { ...applicationUserThreeData }, status: 404 })
+	await sendProjectApplication({ token: userThree.token, projectId: project.id, application: { ...applicationUserThreeData }, status: 403 })
 
 	// User four blocks user one
 	await blockUser(userFour.token, userOne.id, 200)
-	await sendProjectApplication({ token: userFour.token, projectId: project.id, application: { ...applicationUserFourData }, status: 404 })
+	await sendProjectApplication({ token: userFour.token, projectId: project.id, application: { ...applicationUserFourData }, status: 403 })
 
 	// User one fetches project invitations for project
 	const { projectApplications: projectApplicationsFetched } = await getProjectApplications({ token: userOne.token, projectId: project.id })
@@ -1103,7 +1103,9 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await blockUser(userFive.token, userOne.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterBlock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidatesAfterBlock.length).toBe(0)
+	expect(markedCandidatesAfterBlock.length).toBe(1)
+	expect(markedCandidatesAfterBlock[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterBlock[0].id, 403)
 
 	await unblockUser(userFive.token, userOne.id, 200)
 
@@ -1112,31 +1114,38 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await blockUser(userOne.token, userFive.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterBlock2 } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidatesAfterBlock2.length).toBe(0)
+	expect(markedCandidatesAfterBlock2.length).toBe(1)
+	expect(markedCandidatesAfterBlock2[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterBlock2[0].id, 403)
 
 	await unblockUser(userOne.token, userFive.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterUnblock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
 	expect(markedCandidatesAfterUnblock.length).toBe(1)
 	expect(markedCandidatesAfterUnblock[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterUnblock[0].id, 200)
 
 	// User five gets all the projects where he's marked as a potential candidate
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked1 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
 	expect(projectsWhereUserIsMarked1.length).toBe(1)
+	expect(projectsWhereUserIsMarked1[0].id).toBe(project.id)
+	await fetchProjectById(userFive.token, project.id, 200 )
 
 	// User five gets all projects (0) after blocking user one
 	await blockUser(userFive.token, userOne.id, 200)
-
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked2 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
-	expect(projectsWhereUserIsMarked2.length).toBe(0)
+	expect(projectsWhereUserIsMarked2.length).toBe(1)
+	expect(projectsWhereUserIsMarked2[0].id).toBe(project.id)
+	await fetchProjectById(userFive.token, project.id, 403 )
 
 	await unblockUser(userFive.token, userOne.id, 200)
-
 	// User five gets all projects (0) after user one blocks him
 	await blockUser(userOne.token, userFive.id, 200)
 
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked3 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
-	expect(projectsWhereUserIsMarked3.length).toBe(0)
-	
+	expect(projectsWhereUserIsMarked3.length).toBe(1)
+	expect(projectsWhereUserIsMarked3[0].id).toBe(project.id)
+	await fetchProjectById(userFive.token, project.id, 403 )
+
 	await unblockUser(userOne.token, userFive.id, 200)
 })

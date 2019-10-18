@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 		}
 
 		if (await checkedIfBlocked(user_id_number, req.user.id) || await checkedIfBlocked(req.user.id, user_id_number)) {
-			return res.status(404).json({ msg: 'No user found!' })
+			return res.status(403).json({ msg: 'No user found!' })
 		}
 
 		res.status(200).json({ user })
