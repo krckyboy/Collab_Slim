@@ -437,6 +437,15 @@ async function getSingleProjectApplication({ token, projectApplicationId, status
 	return res.body
 }
 
+async function deleteLoggedUser({ token, status = 200, }) {
+	const res = await request(app)
+		.delete('/api/users/')
+		.set('Authorization', `Bearer ${token}`)
+		.expect(status)
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -488,4 +497,5 @@ module.exports = {
 	fetchedMarkedPotentialCandidates,
 	fetchProjectsWhereLoggedUserIsMarked,
 	getSingleProjectApplication,
+	deleteLoggedUser,
 }

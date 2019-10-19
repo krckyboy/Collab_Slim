@@ -14,8 +14,7 @@ module.exports = async (req, res) => {
 
 		// Fetch unique skills and tags
 		projects.forEach(p => {
-			const { skills: required_skills } = p
-			const { has_tags } = p
+			const { skills: required_skills, has_tags } = p
 
 			if (required_skills && required_skills.length > 0) {
 				required_skills.forEach(skillFromRequiredSkills => {

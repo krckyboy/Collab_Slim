@@ -58,6 +58,7 @@ const {
 	fetchedMarkedPotentialCandidates,
 	fetchProjectsWhereLoggedUserIsMarked,
 	getSingleProjectApplication,
+	deleteLoggedUser,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -67,6 +68,7 @@ const Project = require('../db/models/Project')
 const Event = require('../db/models/Event')
 const Notification = require('../db/models/Notification')
 const ProjectApplication = require('../db/models/ProjectApplication')
+const MarkedCandidate = require('../db/models/MarkedCandidate')
 
 beforeEach(async () => {
 	await User.query().delete()
@@ -1005,7 +1007,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await registerNewUser(userFive, 201)
 
 	// User one creates a project
-	const { project } = await createProject({ ...projectUserOne1 }, userOne.token, 201)
+	const { project } = await createProject({ ...projectUserOne1, skills: ['react'], tags: ['blog'] }, userOne.token, 201)
 
 	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
 	const applicationUserThreeData = { message: 'Please check my profile if you are interested in hiring me.', email: 'userthree@gmail.com', }
@@ -1155,6 +1157,45 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await fetchProjectById(userFive.token, project.id, 403)
 
 	await unblockUser(userOne.token, userFive.id, 200)
+
+	// ** 
+	// Checking delete user aftermath
+	// ** 
+
+	// User one populates profile
+	await populateProfile({ ...initialProfileValuesUserOne, skills: ['node', 'react', 'express'] }, userOne.token, 200)
+
+	await deleteLoggedUser({ token: userOne.token })
+
+	// Should be no projects
+	// Should be no project applications
+	// Should be no marked candidates
+	// Should be two skills with 0 count of each type
+	// Should be one tag with 0 count
+	const allProjects = await Project.query()
+	expect(allProjects.length).toBe(0)
+
+	const allProjectApplications = await ProjectApplication.query()
+	expect(allProjectApplications.length).toBe(0)
+
+	const allMarkedCandidates = await MarkedCandidate.query()
+	expect(allMarkedCandidates.length).toBe(0)
+
+	const allSkills = await Skill.query()
+	expect(allSkills.length).toBe(3)
+	const node = allSkills.find(s => s.name === 'node')
+	const react = allSkills.find(s => s.name === 'react')
+	const express = allSkills.find(s => s.name === 'express')
+	expect(node.has_skills_count).toBe(0)
+	expect(node.required_skills_count).toBe(0)
+	expect(react.has_skills_count).toBe(0)
+	expect(react.required_skills_count).toBe(0)
+	expect(express.has_skills_count).toBe(0)
+	expect(express.required_skills_count).toBe(0)
+
+	const allTags = await Tag.query()
+	expect(allTags.length).toBe(1)
+	expect(allTags[0].count).toBe(0)
 })
 
 test('fetchedMarkedPotentialCandidates pagination', async () => {
@@ -1165,8 +1206,8 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	await registerNewUser(userThree, 201)
 
 	// User one creates a project
-	const { project: project2 } = await createProject({ ...projectUserOne2 }, userOne.token, 201)
-	const { project } = await createProject({ ...projectUserOne1 }, userOne.token, 201)
+	const { project: project2 } = await createProject({ ...projectUserOne2, }, userOne.token, 201)
+	const { project } = await createProject({ ...projectUserOne1, }, userOne.token, 201)
 
 	// User one marks user two, three, four
 	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userTwo.id, status: 200 })
