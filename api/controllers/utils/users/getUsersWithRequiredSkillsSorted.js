@@ -7,7 +7,7 @@ module.exports = async function getUsersWithRequiredSkillsSortedForProject({ ski
 	const hasSkillsSubquery = User.relatedQuery('skills').whereIn('has_skills.skill_id', skillIds)
 	const blockedUserIdSubquery = User.relatedQuery('blockedMembers').where('blocked_members.target_id', userId)
 
-	const users = await User.query() 
+	const users = await User.query()
 		.select('users.id', 'users.name')
 		.eager('skills')
 		.modifyEager('skills', builder => builder.select('skills.id', 'skills.name').whereIn('skills.id', skillIds)) // Populating the matched skills
@@ -19,10 +19,13 @@ module.exports = async function getUsersWithRequiredSkillsSortedForProject({ ski
 		.range(start, end)
 
 	// Manually adding the number of matched skills
-	const usersWithCount = users.results.map(user => {
-		const matchedSkills = user.skills.length
-		return { ...user, matchedSkills }
-	})
+	const usersWithCount = {
+		results: users.results.map(user => {
+			const matchedSkills = user.skills.length
+			return { ...user, matchedSkills }
+		}),
+		total: users.total
+	}
 
 	return usersWithCount
 }

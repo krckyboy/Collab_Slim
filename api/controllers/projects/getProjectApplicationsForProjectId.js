@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
 				.orderBy('created_at', 'desc')
 		}
 
-		res.json({ projectApplications: projectApplications.results })
+		res.json({ projectApplications: projectApplications })
 	} catch (err) {
 		console.error(err)
 		res.status(500).json({ msg: 'Server error' })

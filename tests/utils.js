@@ -410,18 +410,18 @@ async function markPotentialCandidate({ token, projectId, userId, status = 200 }
 	return res.body
 }
 
-async function fetchedMarkedPotentialCandidates({ token, projectId, status = 200 }) {
+async function fetchedMarkedPotentialCandidates({ token, projectId, start, end, status = 200 }) {
 	const res = await request(app)
-		.get(`/api/projects/marked_users/${projectId}/`)
+		.get(`/api/projects/marked_users/${projectId}?start=${start}&end=${end}/`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
 	return res.body
 }
 
-async function fetchProjectsWhereLoggedUserIsMarked({ token, status = 200 }) {
+async function fetchProjectsWhereLoggedUserIsMarked({ token, start, end, status = 200 }) {
 	const res = await request(app)
-		.get('/api/projects/projects_where_user_is_marked')
+		.get(`/api/projects/projects_where_user_is_marked?start=${start}&end=${end}/`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 

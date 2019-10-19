@@ -27,7 +27,7 @@ module.exports = async (req, res) => {
 			.range(start, end)
 			.orderBy('created_at', 'desc')
 
-		return res.json({ projects: projects.results })
+		return res.json({ projects })
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

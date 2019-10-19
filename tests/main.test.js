@@ -653,28 +653,28 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 
 	// User two fetches user one's projects successfully
 	const { projects: userOneProjects1 } = await fetchUsersProjects(userOne.id, userTwo.token, 200)
-	expect(userOneProjects1.length).toBe(2)
-	expect(userOneProjects1[0].id).toBe(projectUserOneSecond.id)
-	expect(userOneProjects1[1].id).toBe(projectUserOne.id)
+	expect(userOneProjects1.results.length).toBe(2)
+	expect(userOneProjects1.results[0].id).toBe(projectUserOneSecond.id)
+	expect(userOneProjects1.results[1].id).toBe(projectUserOne.id)
 
 	// Check if pagination and sorting works
 	const { projects: userOneProjects2 } = await fetchUsersProjects(userOne.id, userTwo.token, 200, null, 0, 0)
-	expect(userOneProjects2.length).toBe(1)
-	expect(userOneProjects2[0].id).toBe(projectUserOneSecond.id)
+	expect(userOneProjects2.results.length).toBe(1)
+	expect(userOneProjects2.results[0].id).toBe(projectUserOneSecond.id)
 
 	const { projects: userOneProjects3 } = await fetchUsersProjects(userOne.id, userTwo.token, 200, null, 0, 1)
-	expect(userOneProjects3.length).toBe(2)
-	expect(userOneProjects3[0].id).toBe(projectUserOneSecond.id)
-	expect(userOneProjects3[1].id).toBe(projectUserOne.id)
+	expect(userOneProjects3.results.length).toBe(2)
+	expect(userOneProjects3.results[0].id).toBe(projectUserOneSecond.id)
+	expect(userOneProjects3.results[1].id).toBe(projectUserOne.id)
 
 	// User one fetches projects with his skills
 	// Check if the number is correct and the order is good, make sure he doesn't fetch his own projects
 	const { projects: projectsWithUserOneSkills1 } = await fetchPotentialProjects(userOne.token, 200)
-	expect(projectsWithUserOneSkills1.length).toBe(2)
-	expect(projectsWithUserOneSkills1[0].id).toBe(projectUserThree.id)
-	expect(projectsWithUserOneSkills1[0].matchedSkills).toBe(3)
-	expect(projectsWithUserOneSkills1[1].id).toBe(projectUserTwo.id)
-	expect(projectsWithUserOneSkills1[1].matchedSkills).toBe(2)
+	expect(projectsWithUserOneSkills1.results.length).toBe(2)
+	expect(projectsWithUserOneSkills1.results[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills1.results[0].matchedSkills).toBe(3)
+	expect(projectsWithUserOneSkills1.results[1].id).toBe(projectUserTwo.id)
+	expect(projectsWithUserOneSkills1.results[1].matchedSkills).toBe(2)
 
 	// User one blocks user two
 	// User one fetches projects with his skills, check if there's no project of user two there
@@ -682,9 +682,9 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	await blockUser(userOne.token, userTwo.id, 200)
 
 	const { projects: projectsWithUserOneSkills2 } = await fetchPotentialProjects(userOne.token, 200)
-	expect(projectsWithUserOneSkills2.length).toBe(1)
-	expect(projectsWithUserOneSkills2[0].id).toBe(projectUserThree.id)
-	expect(projectsWithUserOneSkills2[0].matchedSkills).toBe(3)
+	expect(projectsWithUserOneSkills2.results.length).toBe(1)
+	expect(projectsWithUserOneSkills2.results[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills2.results[0].matchedSkills).toBe(3)
 
 	await unblockUser(userOne.token, userTwo.id, 200)
 
@@ -694,9 +694,9 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	await blockUser(userTwo.token, userOne.id, 200)
 
 	const { projects: projectsWithUserOneSkills3 } = await fetchPotentialProjects(userOne.token, 200)
-	expect(projectsWithUserOneSkills3.length).toBe(1)
-	expect(projectsWithUserOneSkills3[0].id).toBe(projectUserThree.id)
-	expect(projectsWithUserOneSkills3[0].matchedSkills).toBe(3)
+	expect(projectsWithUserOneSkills3.results.length).toBe(1)
+	expect(projectsWithUserOneSkills3.results[0].id).toBe(projectUserThree.id)
+	expect(projectsWithUserOneSkills3.results[0].matchedSkills).toBe(3)
 
 	await unblockUser(userTwo.token, userOne.id, 200)
 
@@ -704,28 +704,28 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	// User one fetches projects with his skills, check if correct
 	await populateProfile({ ...initialProfileValuesUserOne, skills: ['python'] }, userOne.token, 200)
 	const { projects: projectsWithUserOneSkills4 } = await fetchPotentialProjects(userOne.token, 200)
-	expect(projectsWithUserOneSkills4.length).toBe(1)
-	expect(projectsWithUserOneSkills4[0].id).toBe(projectUserFour.id)
-	expect(projectsWithUserOneSkills4[0].matchedSkills).toBe(1)
-	expect(projectsWithUserOneSkills4[0].skills[0].name).toBe('python')
+	expect(projectsWithUserOneSkills4.results.length).toBe(1)
+	expect(projectsWithUserOneSkills4.results[0].id).toBe(projectUserFour.id)
+	expect(projectsWithUserOneSkills4.results[0].matchedSkills).toBe(1)
+	expect(projectsWithUserOneSkills4.results[0].skills[0].name).toBe('python')
 
 	// User one fetches users with required skills, check if correct and order good
 	// User one blocks user two
 	// User one fetches users with required skills, check if not fetching user two
 	// User one unblocks user two
 	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne.length).toBe(2)
-	expect(potentialUsersProjectUserOne[0].id).toBe(userTwo.id)
-	expect(potentialUsersProjectUserOne[0].matchedSkills).toBe(3)
-	expect(potentialUsersProjectUserOne[1].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne[1].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne.results.length).toBe(2)
+	expect(potentialUsersProjectUserOne.results[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne.results[0].matchedSkills).toBe(3)
+	expect(potentialUsersProjectUserOne.results[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne.results[1].matchedSkills).toBe(2)
 
 	await blockUser(userOne.token, userTwo.id, 200)
 
 	const { users: potentialUsersProjectUserOne2 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne2.length).toBe(1)
-	expect(potentialUsersProjectUserOne2[0].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne2[0].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne2.results.length).toBe(1)
+	expect(potentialUsersProjectUserOne2.results[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne2.results[0].matchedSkills).toBe(2)
 
 	await unblockUser(userOne.token, userTwo.id, 200)
 
@@ -735,29 +735,29 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	await blockUser(userTwo.token, userOne.id, 200)
 
 	const { users: potentialUsersProjectUserOne3 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne3.length).toBe(1)
-	expect(potentialUsersProjectUserOne3[0].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne3[0].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne3.results.length).toBe(1)
+	expect(potentialUsersProjectUserOne3.results[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne3.results[0].matchedSkills).toBe(2)
 
 	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// User one fetches users for his project
 	// Check if all good and if the order is good
 	const { users: potentialUsersProjectUserOne4 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne4.length).toBe(2)
-	expect(potentialUsersProjectUserOne4[0].id).toBe(userTwo.id)
-	expect(potentialUsersProjectUserOne4[0].matchedSkills).toBe(3)
-	expect(potentialUsersProjectUserOne4[1].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne4[1].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne4.results.length).toBe(2)
+	expect(potentialUsersProjectUserOne4.results[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne4.results[0].matchedSkills).toBe(3)
+	expect(potentialUsersProjectUserOne4.results[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne4.results[1].matchedSkills).toBe(2)
 
 	// User two updates profile, removing skills
 	// User one fetches users for his project
 	// Check if not fetching user two
 	await populateProfile({ ...initialProfileValuesUserTwo, skills: [] }, userTwo.token, 200)
 	const { users: potentialUsersProjectUserOne5 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne5.length).toBe(1)
-	expect(potentialUsersProjectUserOne5[0].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne5[0].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne5.results.length).toBe(1)
+	expect(potentialUsersProjectUserOne5.results[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne5.results[0].matchedSkills).toBe(2)
 
 	// User two updates his profile again
 	// User one updates his project, tweaking skills
@@ -766,11 +766,11 @@ test('/fetchUsersProjects, /fetchUsersWithSkillsForProject, /fetchProjectsWithMy
 	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['node'] }, userTwo.token, 200)
 	await editProject(projectUserOne.id, { ...projectUserOne1, skills: ['node', 'express', 'mariadb'], }, userOne.token, 200)
 	const { users: potentialUsersProjectUserOne6 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne6.length).toBe(2)
-	expect(potentialUsersProjectUserOne6[0].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne6[0].matchedSkills).toBe(2)
-	expect(potentialUsersProjectUserOne6[1].id).toBe(userTwo.id)
-	expect(potentialUsersProjectUserOne6[1].matchedSkills).toBe(1)
+	expect(potentialUsersProjectUserOne6.results.length).toBe(2)
+	expect(potentialUsersProjectUserOne6.results[0].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne6.results[0].matchedSkills).toBe(2)
+	expect(potentialUsersProjectUserOne6.results[1].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne6.results[1].matchedSkills).toBe(1)
 })
 
 test('/fetchPopularTags, /fetchPopularSkills, /fetchSkillsInDemand and latest', async () => {
@@ -889,11 +889,11 @@ test('/getLatestProjectsPagination', async () => {
 	// Get latest projects
 	// Check if order and pagination works
 	const { projects: projectsFeed } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
-	expect(projectsFeed.length).toBe(4)
-	expect(projectsFeed[0].id).toBe(projectUserThreeSecond.id)
-	expect(projectsFeed[1].id).toBe(projectUserThreeFirst.id)
-	expect(projectsFeed[2].id).toBe(projectUserTwoSecond.id)
-	expect(projectsFeed[3].id).toBe(projectUserTwoFirst.id)
+	expect(projectsFeed.results.length).toBe(4)
+	expect(projectsFeed.results[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed.results[1].id).toBe(projectUserThreeFirst.id)
+	expect(projectsFeed.results[2].id).toBe(projectUserTwoSecond.id)
+	expect(projectsFeed.results[3].id).toBe(projectUserTwoFirst.id)
 
 	// User one blocks user two
 	// News feed check
@@ -901,9 +901,9 @@ test('/getLatestProjectsPagination', async () => {
 	await blockUser(userOne.token, userTwo.id, 200)
 
 	const { projects: projectsFeed2 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
-	expect(projectsFeed2.length).toBe(2)
-	expect(projectsFeed2[0].id).toBe(projectUserThreeSecond.id)
-	expect(projectsFeed2[1].id).toBe(projectUserThreeFirst.id)
+	expect(projectsFeed2.results.length).toBe(2)
+	expect(projectsFeed2.results[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed2.results[1].id).toBe(projectUserThreeFirst.id)
 
 	await unblockUser(userOne.token, userTwo.id, 200)
 
@@ -912,17 +912,17 @@ test('/getLatestProjectsPagination', async () => {
 	await blockUser(userTwo.token, userOne.id, 200)
 
 	const { projects: projectsFeed3 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 9 })
-	expect(projectsFeed3.length).toBe(2)
-	expect(projectsFeed3[0].id).toBe(projectUserThreeSecond.id)
-	expect(projectsFeed3[1].id).toBe(projectUserThreeFirst.id)
+	expect(projectsFeed3.results.length).toBe(2)
+	expect(projectsFeed3.results[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed3.results[1].id).toBe(projectUserThreeFirst.id)
 
 	await unblockUser(userTwo.token, userOne.id, 200)
 
 	// Check if pagination works
 	const { projects: projectsFeed4 } = await fetchLatestProjectsPagination({ token: userOne.token, start: 0, end: 1 })
-	expect(projectsFeed4.length).toBe(2)
-	expect(projectsFeed4[0].id).toBe(projectUserThreeSecond.id)
-	expect(projectsFeed4[1].id).toBe(projectUserThreeFirst.id)
+	expect(projectsFeed4.results.length).toBe(2)
+	expect(projectsFeed4.results[0].id).toBe(projectUserThreeSecond.id)
+	expect(projectsFeed4.results[1].id).toBe(projectUserThreeFirst.id)
 })
 
 test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () => {
@@ -959,42 +959,42 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 
 	// Check if pagination and order works as expected
 	const { users: potentialUsersProjectUserOne } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id, start: 0, end: 2 })
-	expect(potentialUsersProjectUserOne.length).toBe(3)
-	expect(potentialUsersProjectUserOne[0].id).toBe(userTwo.id)
-	expect(potentialUsersProjectUserOne[0].skills.length).toBe(5)
-	expect(potentialUsersProjectUserOne[1].id).toBe(userThree.id)
-	expect(potentialUsersProjectUserOne[1].skills.length).toBe(4)
-	expect(potentialUsersProjectUserOne[2].id).toBe(userFour.id)
-	expect(potentialUsersProjectUserOne[2].skills.length).toBe(3)
+	expect(potentialUsersProjectUserOne.results.length).toBe(3)
+	expect(potentialUsersProjectUserOne.results[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne.results[0].skills.length).toBe(5)
+	expect(potentialUsersProjectUserOne.results[1].id).toBe(userThree.id)
+	expect(potentialUsersProjectUserOne.results[1].skills.length).toBe(4)
+	expect(potentialUsersProjectUserOne.results[2].id).toBe(userFour.id)
+	expect(potentialUsersProjectUserOne.results[2].skills.length).toBe(3)
 
 	// Check if no blocked user
 	const { users: potentialUsersProjectUserOne2 } = await fetchPotentialUsers({ token: userOne.token, projectId: projectUserOne.id })
-	expect(potentialUsersProjectUserOne2.length).toBe(5)
-	expect(potentialUsersProjectUserOne2[0].id).toBe(userTwo.id)
-	expect(potentialUsersProjectUserOne2.map(u => u.id).includes(userSeven.id)).toBe(false)
+	expect(potentialUsersProjectUserOne2.results.length).toBe(5)
+	expect(potentialUsersProjectUserOne2.results[0].id).toBe(userTwo.id)
+	expect(potentialUsersProjectUserOne2.results.map(u => u.id).includes(userSeven.id)).toBe(false)
 
 	// User seven populates profile with skills
 	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
 
 	// User seven gets potential projects
 	const { projects: potentialProjectsUserSeven } = await fetchPotentialProjects(userSeven.token, 200)
-	expect(potentialProjectsUserSeven.length).toBe(4)
-	expect(potentialProjectsUserSeven[0].id).toBe(projectUserFourFirst.id)
-	expect(potentialProjectsUserSeven[0].matchedSkills).toBe(5)
-	expect(potentialProjectsUserSeven[1].id).toBe(projectUserTwoSecond.id)
-	expect(potentialProjectsUserSeven[1].matchedSkills).toBe(4)
-	expect(potentialProjectsUserSeven[2].id).toBe(projectUserThreeFirst.id)
-	expect(potentialProjectsUserSeven[2].matchedSkills).toBe(3)
-	expect(potentialProjectsUserSeven[3].id).toBe(projectUserTwoFirst.id)
-	expect(potentialProjectsUserSeven[3].matchedSkills).toBe(2)
+	expect(potentialProjectsUserSeven.results.length).toBe(4)
+	expect(potentialProjectsUserSeven.results[0].id).toBe(projectUserFourFirst.id)
+	expect(potentialProjectsUserSeven.results[0].matchedSkills).toBe(5)
+	expect(potentialProjectsUserSeven.results[1].id).toBe(projectUserTwoSecond.id)
+	expect(potentialProjectsUserSeven.results[1].matchedSkills).toBe(4)
+	expect(potentialProjectsUserSeven.results[2].id).toBe(projectUserThreeFirst.id)
+	expect(potentialProjectsUserSeven.results[2].matchedSkills).toBe(3)
+	expect(potentialProjectsUserSeven.results[3].id).toBe(projectUserTwoFirst.id)
+	expect(potentialProjectsUserSeven.results[3].matchedSkills).toBe(2)
 
 	// Check if order works properly
 	const { projects: potentialProjectsUserSeven2 } = await fetchPotentialProjects(userSeven.token, 200, 0, 1)
-	expect(potentialProjectsUserSeven2.length).toBe(2)
-	expect(potentialProjectsUserSeven2[0].id).toBe(projectUserFourFirst.id)
-	expect(potentialProjectsUserSeven2[0].matchedSkills).toBe(5)
-	expect(potentialProjectsUserSeven2[1].id).toBe(projectUserTwoSecond.id)
-	expect(potentialProjectsUserSeven2[1].matchedSkills).toBe(4)
+	expect(potentialProjectsUserSeven2.results.length).toBe(2)
+	expect(potentialProjectsUserSeven2.results[0].id).toBe(projectUserFourFirst.id)
+	expect(potentialProjectsUserSeven2.results[0].matchedSkills).toBe(5)
+	expect(potentialProjectsUserSeven2.results[1].id).toBe(projectUserTwoSecond.id)
+	expect(potentialProjectsUserSeven2.results[1].matchedSkills).toBe(4)
 })
 
 test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProjectApplicationRead, /markProjectApplicationArchived', async () => {
@@ -1025,7 +1025,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 
 	// Check if user one receives a notification
 	const { notifications: notificationsUserOne } = await getNotifications(userOne.token, 200)
-	expect(notificationsUserOne.length).toBe(1)
+	expect(notificationsUserOne.results.length).toBe(1)
 
 	// User one tries to send an application again
 	await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData }, status: 400 })
@@ -1040,8 +1040,8 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 
 	// User one fetches project invitations for project
 	const { projectApplications: projectApplicationsFetched } = await getProjectApplications({ token: userOne.token, projectId: project.id })
-	expect(projectApplicationsFetched.length).toBe(1)
-	const { projectApplication } = await getSingleProjectApplication({ token: userOne.token, projectApplicationId: projectApplicationsFetched[0].id })
+	expect(projectApplicationsFetched.results.length).toBe(1)
+	const { projectApplication } = await getSingleProjectApplication({ token: userOne.token, projectApplicationId: projectApplicationsFetched.results[0].id })
 	expect(projectApplication.user_id).toBe(userTwo.id)
 	expect(projectApplication.message).toBe('Please check my profile if you are interested in hiring me.')
 	expect(projectApplication.email).toBe('usertwo@gmail.com')
@@ -1049,7 +1049,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 
 	// User two fails to fetch project invitations for project
 	await getProjectApplications({ token: userTwo.token, projectId: project.id, status: 401 })
-	await getSingleProjectApplication({ token: userTwo.token, projectApplicationId: projectApplicationsFetched[0].id, status: 401 })
+	await getSingleProjectApplication({ token: userTwo.token, projectApplicationId: projectApplicationsFetched.results[0].id, status: 401 })
 
 	// Users get unblocked
 	await unblockUser(userOne.token, userThree.id, 200)
@@ -1061,48 +1061,48 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 
 	// User one fetches project invitations for project
 	const { projectApplications: projectApplicationsFetched2 } = await getProjectApplications({ token: userOne.token, projectId: project.id })
-	expect(projectApplicationsFetched2.length).toBe(3)
-	expect(projectApplicationsFetched2[0].id).toBe(projectApplicationUserFour.id)
-	expect(projectApplicationsFetched2[1].id).toBe(projectApplicationUserThree.id)
-	expect(projectApplicationsFetched2[2].id).toBe(projectApplicationUserTwo.id)
+	expect(projectApplicationsFetched2.results.length).toBe(3)
+	expect(projectApplicationsFetched2.results[0].id).toBe(projectApplicationUserFour.id)
+	expect(projectApplicationsFetched2.results[1].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched2.results[2].id).toBe(projectApplicationUserTwo.id)
 
 	// User one fetches project invitations for project with pagination
 	const { projectApplications: projectApplicationsFetched3 } = await getProjectApplications({ token: userOne.token, projectId: project.id, start: 1, end: 2 })
-	expect(projectApplicationsFetched3.length).toBe(2)
-	expect(projectApplicationsFetched3[0].id).toBe(projectApplicationUserThree.id)
-	expect(projectApplicationsFetched3[1].id).toBe(projectApplicationUserTwo.id)
+	expect(projectApplicationsFetched3.results.length).toBe(2)
+	expect(projectApplicationsFetched3.results[0].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched3.results[1].id).toBe(projectApplicationUserTwo.id)
 
 	// User one marks PAU4  read
 	await markProjectApplicationRead({ token: userOne.token, projectApplicationId: projectApplicationUserFour.id })
 
 	// User one fetches only read applications
 	const { projectApplications: projectApplicationsFetched4 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'read' })
-	expect(projectApplicationsFetched4.length).toBe(1)
-	expect(projectApplicationsFetched4[0].id).toBe(projectApplicationUserFour.id)
+	expect(projectApplicationsFetched4.results.length).toBe(1)
+	expect(projectApplicationsFetched4.results[0].id).toBe(projectApplicationUserFour.id)
 
 	// User one marks PAU3 archived
 	await markProjectApplicationArchived({ token: userOne.token, projectApplicationId: projectApplicationUserThree.id })
 
 	// User one fetches archived PA
 	const { projectApplications: projectApplicationsFetched5 } = await getProjectApplications({ token: userOne.token, projectId: project.id, type: 'archived' })
-	expect(projectApplicationsFetched5.length).toBe(1)
-	expect(projectApplicationsFetched5[0].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched5.results.length).toBe(1)
+	expect(projectApplicationsFetched5.results[0].id).toBe(projectApplicationUserThree.id)
 
 	// User one marks user five as a potential candidate
 	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userFive.id, status: 200 })
 
 	// User five checks notifications, finding the one about being marked
 	const { notifications: notificationsUserFive } = await getNotifications(userFive.token, 200)
-	expect(notificationsUserFive.length).toBe(1)
-	expect(notificationsUserFive[0].event.type).toBe('potential_candidate_marked')
-	expect(notificationsUserFive[0].event.project_id).toBe(project.id)
-	expect(notificationsUserFive[0].event.triggering_user_id).toBe(userOne.id)
-	expect(notificationsUserFive[0].event.target_user_id).toBe(userFive.id)
+	expect(notificationsUserFive.results.length).toBe(1)
+	expect(notificationsUserFive.results[0].event.type).toBe('potential_candidate_marked')
+	expect(notificationsUserFive.results[0].event.project_id).toBe(project.id)
+	expect(notificationsUserFive.results[0].event.triggering_user_id).toBe(userOne.id)
+	expect(notificationsUserFive.results[0].event.target_user_id).toBe(userFive.id)
 
 	// User one gets all users that he marked as potential candidates
 	const { markedCandidates } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidates.length).toBe(1)
-	expect(markedCandidates[0].id).toBe(userFive.id)
+	expect(markedCandidates.results.length).toBe(1)
+	expect(markedCandidates.results[0].id).toBe(userFive.id)
 
 	// User five blocks user one
 	// User one gets all users that he marked as potential candidates, expecting 1, but can't fetch its profile
@@ -1110,9 +1110,9 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await blockUser(userFive.token, userOne.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterBlock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidatesAfterBlock.length).toBe(1)
-	expect(markedCandidatesAfterBlock[0].id).toBe(userFive.id)
-	await fetchUserById(userOne.token, markedCandidatesAfterBlock[0].id, 403)
+	expect(markedCandidatesAfterBlock.results.length).toBe(1)
+	expect(markedCandidatesAfterBlock.results[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterBlock.results[0].id, 403)
 
 	await unblockUser(userFive.token, userOne.id, 200)
 
@@ -1121,28 +1121,28 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await blockUser(userOne.token, userFive.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterBlock2 } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidatesAfterBlock2.length).toBe(1)
-	expect(markedCandidatesAfterBlock2[0].id).toBe(userFive.id)
-	await fetchUserById(userOne.token, markedCandidatesAfterBlock2[0].id, 403)
+	expect(markedCandidatesAfterBlock2.results.length).toBe(1)
+	expect(markedCandidatesAfterBlock2.results[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterBlock2.results[0].id, 403)
 
 	await unblockUser(userOne.token, userFive.id, 200)
 
 	const { markedCandidates: markedCandidatesAfterUnblock } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
-	expect(markedCandidatesAfterUnblock.length).toBe(1)
-	expect(markedCandidatesAfterUnblock[0].id).toBe(userFive.id)
-	await fetchUserById(userOne.token, markedCandidatesAfterUnblock[0].id, 200)
+	expect(markedCandidatesAfterUnblock.results.length).toBe(1)
+	expect(markedCandidatesAfterUnblock.results[0].id).toBe(userFive.id)
+	await fetchUserById(userOne.token, markedCandidatesAfterUnblock.results[0].id, 200)
 
 	// User five gets all the projects where he's marked as a potential candidate
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked1 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
-	expect(projectsWhereUserIsMarked1.length).toBe(1)
-	expect(projectsWhereUserIsMarked1[0].id).toBe(project.id)
+	expect(projectsWhereUserIsMarked1.results.length).toBe(1)
+	expect(projectsWhereUserIsMarked1.results[0].id).toBe(project.id)
 	await fetchProjectById(userFive.token, project.id, 200)
 
 	// User five gets all projects (0) after blocking user one
 	await blockUser(userFive.token, userOne.id, 200)
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked2 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
-	expect(projectsWhereUserIsMarked2.length).toBe(1)
-	expect(projectsWhereUserIsMarked2[0].id).toBe(project.id)
+	expect(projectsWhereUserIsMarked2.results.length).toBe(1)
+	expect(projectsWhereUserIsMarked2.results[0].id).toBe(project.id)
 	await fetchProjectById(userFive.token, project.id, 403)
 
 	await unblockUser(userFive.token, userOne.id, 200)
@@ -1150,9 +1150,55 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	await blockUser(userOne.token, userFive.id, 200)
 
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked3 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
-	expect(projectsWhereUserIsMarked3.length).toBe(1)
-	expect(projectsWhereUserIsMarked3[0].id).toBe(project.id)
+	expect(projectsWhereUserIsMarked3.results.length).toBe(1)
+	expect(projectsWhereUserIsMarked3.results[0].id).toBe(project.id)
 	await fetchProjectById(userFive.token, project.id, 403)
 
 	await unblockUser(userOne.token, userFive.id, 200)
 })
+
+test('fetchedMarkedPotentialCandidates pagination', async () => {
+	// Users registering
+	await registerNewUser(userFive, 201)
+	await registerNewUser(userTwo, 201)
+	await registerNewUser(userFour, 201)
+	await registerNewUser(userThree, 201)
+
+	// User one creates a project
+	const { project: project2 } = await createProject({ ...projectUserOne2 }, userOne.token, 201)
+	const { project } = await createProject({ ...projectUserOne1 }, userOne.token, 201)
+
+	// User one marks user two, three, four
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userTwo.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userThree.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userFour.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userFive.id, status: 200 })
+
+	// For project 2
+	await markPotentialCandidate({ token: userOne.token, projectId: project2.id, userId: userTwo.id, status: 200 })
+
+	// Check pagination for fetched marked users
+	const { markedCandidates: markedCandidates } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id })
+	expect(markedCandidates.results.length).toBe(4)
+	expect(markedCandidates.results[0].id).toBe(userFive.id)
+	expect(markedCandidates.results[1].id).toBe(userFour.id)
+	expect(markedCandidates.results[2].id).toBe(userThree.id)
+	expect(markedCandidates.results[3].id).toBe(userTwo.id)
+
+	const { markedCandidates: markedCandidatesPagination } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, start: 1, end: 2 })
+	expect(markedCandidatesPagination.results.length).toBe(2)
+
+	// Check fetchProjectsWhereLoggedUserIsMarked with multiple projects, pagination and order
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token })
+	expect(projectsWhereUserIsMarked.results.length).toBe(2)
+	expect(projectsWhereUserIsMarked.results[0].id).toBe(project2.id)
+	expect(projectsWhereUserIsMarked.results[1].id).toBe(project.id)
+
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked2 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, start: 1, end: 1 })
+	expect(projectsWhereUserIsMarked2.results.length).toBe(1)
+	expect(projectsWhereUserIsMarked2.results[0].id).toBe(project.id)
+})
+
+
+
+

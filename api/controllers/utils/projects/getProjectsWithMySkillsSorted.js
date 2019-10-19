@@ -22,5 +22,10 @@ module.exports = async function getProjectsWithMySkillsSorted({ arrayOfSkills, u
 		return { ...project, matchedSkills }
 	})
 
-	return projectsWithSkillsAndNumberOfMatchedSkills
+	const projects = {
+		results: projectsWithSkillsAndNumberOfMatchedSkills,
+		total: projectsWithSkills.total
+	}
+
+	return projects
 }
