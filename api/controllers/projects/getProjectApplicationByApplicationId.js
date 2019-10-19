@@ -24,11 +24,11 @@ module.exports = async (req, res) => {
 		}
 
 		// Check if blocked in both ways
-		if (await checkIfBlocked(req.user.id, projectApplicationId.user_id) || await checkIfBlocked(projectApplicationId.user_id, req.user.id)) {
+		if (await checkIfBlocked(req.user.id, projectApplication.user_id) || await checkIfBlocked(projectApplication.user_id, req.user.id)) {
 			return res.status(403).send()
 		}
 
-		res.json({ projectApplication: projectApplication })
+		res.json({ projectApplication })
 	} catch (err) {
 		console.error(err)
 		res.status(500).json({ msg: 'Server error' })
