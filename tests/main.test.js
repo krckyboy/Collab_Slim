@@ -1172,6 +1172,7 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	// Should be no marked candidates
 	// Should be two skills with 0 count of each type
 	// Should be one tag with 0 count
+	// Should five should fetch 0 projects where he's marked
 	const allProjects = await Project.query()
 	expect(allProjects.length).toBe(0)
 
@@ -1196,6 +1197,9 @@ test('/sendProjectApplication, /getProjectApplicationsForProjectId, /markProject
 	const allTags = await Tag.query()
 	expect(allTags.length).toBe(1)
 	expect(allTags[0].count).toBe(0)
+
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarkedAfterDelete } = await fetchProjectsWhereLoggedUserIsMarked({ token: userFive.token })
+	expect(projectsWhereUserIsMarkedAfterDelete.results.length).toBe(0)
 })
 
 test('fetchedMarkedPotentialCandidates pagination', async () => {
@@ -1206,8 +1210,8 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	await registerNewUser(userThree, 201)
 
 	// User one creates a project
-	const { project: project2 } = await createProject({ ...projectUserOne2, }, userOne.token, 201)
-	const { project } = await createProject({ ...projectUserOne1, }, userOne.token, 201)
+	const { project: project2 } = await createProject({ ...projectUserOne2, skills: ['node'], tags: ['blog'] }, userOne.token, 201)
+	const { project } = await createProject({ ...projectUserOne1, skills: ['react'], tags: ['wordpress'] }, userOne.token, 201)
 
 	// User one marks user two, three, four
 	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userTwo.id, status: 200 })
@@ -1238,6 +1242,55 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked2 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, start: 1, end: 1 })
 	expect(projectsWhereUserIsMarked2.results.length).toBe(1)
 	expect(projectsWhereUserIsMarked2.results[0].id).toBe(project.id)
+
+	// 
+
+	// @todo Add applications
+	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
+	const { projectApplication: projectApplicationUserTwo } = await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData } })
+
+	const { projectApplications: projectApplicationsFetched } = await getProjectApplications({ token: userOne.token, projectId: project.id })
+	expect(projectApplicationsFetched.results.length).toBe(1)
+	expect(projectApplicationsFetched.results[0].id).toBe(projectApplicationUserTwo.id)
+
+	// ** 
+	// Checking delete project aftermath
+	// ** 
+	await deleteProject(project.id, userOne.token, 200)
+	await deleteProject(project2.id, userOne.token, 200)
+
+	// Should be no projects
+	// Should be no project applications
+	// Should be no marked candidates
+	// Should be two skills with 0 count of each type
+	// Should be one tag with 0 count
+	const allProjects = await Project.query()
+	expect(allProjects.length).toBe(0)
+
+	const allProjectApplications = await ProjectApplication.query()
+	expect(allProjectApplications.length).toBe(0)
+
+	const allMarkedCandidates = await MarkedCandidate.query()
+	expect(allMarkedCandidates.length).toBe(0)
+
+	const allSkills = await Skill.query()
+	expect(allSkills.length).toBe(2)
+	const node = allSkills.find(s => s.name === 'node')
+	const react = allSkills.find(s => s.name === 'react')
+	expect(node.has_skills_count).toBe(0)
+	expect(node.required_skills_count).toBe(0)
+	expect(react.has_skills_count).toBe(0)
+	expect(react.required_skills_count).toBe(0)
+
+	const allTags = await Tag.query()
+	expect(allTags.length).toBe(2)
+	expect(allTags[0].count).toBe(0)
+	expect(allTags[1].count).toBe(0)
+
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked3 } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, start: 1, end: 1 })
+	expect(projectsWhereUserIsMarked3.results.length).toBe(0)
+
+	await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, status: 404 })
 })
 
 
