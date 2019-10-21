@@ -1342,6 +1342,21 @@ test('fetchProjectsWhereMarked type check', async () => {
 	expect(projectsWhereUserIsMarkedNotReacted.results[1].id).toBe(project5.id)
 })
 
+test('fetchedMarkedPotentialCandidates type check', async () => {
+	// User 2, 3, 4, 5 registers
+
+	// User one creates a project
+
+	// User 1 marks user 2, 3, 4, 5 for potential candidate
+
+	// User 2, 3 send project applications
+
+	// User fetches all marked potential candidates (should be 4)
+
+	// User fetches all marked potential candidates who reacted (2)
+
+	// User fetches all marked potential candidates who didn't react (2)
+})
 
 
 

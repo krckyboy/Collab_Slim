@@ -425,9 +425,9 @@ async function markPotentialCandidate({ token, projectId, userId, status = 200 }
 	return res.body
 }
 
-async function fetchedMarkedPotentialCandidates({ token, projectId, start, end, status = 200 }) {
+async function fetchedMarkedPotentialCandidates({ token, projectId, start, end, type, status = 200 }) {
 	const res = await request(app)
-		.get(`/api/projects/marked_users/${projectId}?start=${start}&end=${end}/`)
+		.get(`/api/projects/marked_users/${projectId}?start=${start}&end=${end}&type=${type}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 

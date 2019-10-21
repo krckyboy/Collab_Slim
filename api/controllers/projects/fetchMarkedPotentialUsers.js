@@ -32,18 +32,39 @@ module.exports = async (req, res) => {
 			return res.status(400).json({ msg: 'You are not the owner of this project!' })
 		}
 
-		const marks = await MarkedCandidate.query()
-			.eager('user.[skills]')
-			.modifyEager('user', builder => builder.select('id', 'name'))
-			.where('project_id', project.id)
-			.orderBy('created_at', 'desc')
-			.range(start, end)
+		const type = req.query.type
+		let marks
+
+		if (type === 'reacted') {
+			marks = await MarkedCandidate.query()
+				.eager('user.[skills]')
+				.modifyEager('user', builder => builder.select('id', 'name'))
+				.where('project_id', project.id)
+				.where('status', 'reacted')
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		} else if (type === 'not_reacted') {
+			marks = await MarkedCandidate.query()
+				.eager('user.[skills]')
+				.modifyEager('user', builder => builder.select('id', 'name'))
+				.where('project_id', project.id)
+				.where('status', 'not_reacted')
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		} else {
+			marks = await MarkedCandidate.query()
+				.eager('user.[skills]')
+				.modifyEager('user', builder => builder.select('id', 'name'))
+				.where('project_id', project.id)
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		}
 
 		const markedCandidates = {
 			results: marks.results.map(m => m.user),
 			total: marks.total
 		}
-		
+
 		return res.status(200).json({ markedCandidates: markedCandidates })
 	} catch (err) {
 		console.error(err)
