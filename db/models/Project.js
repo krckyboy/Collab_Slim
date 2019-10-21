@@ -62,6 +62,7 @@ class Project extends Model {
 					through: {
 						from: 'marked_candidates.project_id',
 						to: 'marked_candidates.user_id',
+						extra: ['status']
 					},
 					to: 'users.id',
 				}

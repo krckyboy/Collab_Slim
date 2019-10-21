@@ -210,6 +210,7 @@ exports.up = knex => {
 		.createTable('marked_candidates', table => {
 			table.increments('id').primary()
 			table.timestamps(true, true)
+			table.string('status').defaultTo('not_reacted')
 			table
 				.integer('user_id') // the potential candidate 
 				.unsigned()

@@ -1,4 +1,5 @@
 const Project = require('../../../db/models/Project')
+const MarkedCandidate = require('../../../db/models/MarkedCandidate')
 const createEvent = require('../utils/events/createAnEvent')
 const checkIfBlocked = require('../users/utils/checkIfBlocked')
 const { validationResult } = require('express-validator/check')
@@ -67,6 +68,15 @@ module.exports = async (req, res) => {
 		await event.$relatedQuery('notifications').insert({
 			user_to_notify: ownerId
 		})
+
+		// If the candidate is marked for that project, set the status of the mark to 'reacted'
+		const markedCandidate = await MarkedCandidate.query().findOne({ user_id: userId, project_id: projectId })
+
+		if (markedCandidate) {
+			await markedCandidate.$query().update({
+				status: 'reacted'
+			})
+		}
 
 		return res.status(201).json({ projectApplication })
 	} catch (err) {

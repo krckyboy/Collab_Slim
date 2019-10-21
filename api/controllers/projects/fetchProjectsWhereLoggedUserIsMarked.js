@@ -11,13 +11,37 @@ module.exports = async (req, res) => {
 			end = 10
 		}
 
-		const marks = await MarkedCandidate.query()
-			.eager('project.[skills, owner]')
-			.modifyEager('project', builder => builder.select('projects.id', 'projects.name', 'projects.owner_id'))
-			.modifyEager('project.[owner]', builder => builder.select('id', 'name'))
-			.where('user_id', req.user.id)
-			.orderBy('created_at', 'desc')
-			.range(start, end)
+		const type = req.query.type
+		let marks
+
+		if (type === 'reacted') {
+			marks = await MarkedCandidate.query()
+				.eager('project.[skills, owner]')
+				.modifyEager('project', builder => builder.select('projects.id', 'projects.name', 'projects.owner_id'))
+				.modifyEager('project.[owner]', builder => builder.select('id', 'name'))
+				.where('status', 'reacted')
+				.where('user_id', req.user.id)
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		} else if (type === 'not_reacted') {
+			marks = await MarkedCandidate.query()
+				.eager('project.[skills, owner]')
+				.modifyEager('project', builder => builder.select('projects.id', 'projects.name', 'projects.owner_id'))
+				.modifyEager('project.[owner]', builder => builder.select('id', 'name'))
+				.where('status', 'not_reacted')
+				.where('user_id', req.user.id)
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		} else {
+			marks = await MarkedCandidate.query()
+				.eager('project.[skills, owner]')
+				.modifyEager('project', builder => builder.select('projects.id', 'projects.name', 'projects.owner_id'))
+				.modifyEager('project.[owner]', builder => builder.select('id', 'name'))
+				.where('user_id', req.user.id)
+				.orderBy('created_at', 'desc')
+				.range(start, end)
+		}
+
 
 		const projects = {
 			results: marks.results.map(m => m.project),

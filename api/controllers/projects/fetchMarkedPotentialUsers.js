@@ -1,6 +1,5 @@
 const Project = require('../../../db/models/Project')
 const MarkedCandidate = require('../../../db/models/MarkedCandidate')
-const User = require('../../../db/models/User')
 const validatePagination = require('../utils/validatePagination')
 
 module.exports = async (req, res) => {

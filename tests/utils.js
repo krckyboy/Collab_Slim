@@ -108,6 +108,21 @@ const projectUserOne2 = {
 	description: 'user_one_project_description_2',
 	url: 'www.user_one_project_2.com'
 }
+const projectUserOne3 = {
+	name: 'user_one_project_3',
+	description: 'user_one_project_description_3',
+	url: 'www.user_one_project_3.com'
+}
+const projectUserOne4 = {
+	name: 'user_one_project_4',
+	description: 'user_one_project_description_4',
+	url: 'www.user_one_project_4.com'
+}
+const projectUserOne5 = {
+	name: 'user_one_project_5',
+	description: 'user_one_project_description_5',
+	url: 'www.user_one_project_5.com'
+}
 
 const projectUserTwo1 = {
 	name: 'user_two_project',
@@ -419,9 +434,9 @@ async function fetchedMarkedPotentialCandidates({ token, projectId, start, end, 
 	return res.body
 }
 
-async function fetchProjectsWhereLoggedUserIsMarked({ token, start, end, status = 200 }) {
+async function fetchProjectsWhereLoggedUserIsMarked({ token, start, end, type, status = 200 }) {
 	const res = await request(app)
-		.get(`/api/projects/projects_where_user_is_marked?start=${start}&end=${end}/`)
+		.get(`/api/projects/projects_where_user_is_marked?start=${start}&end=${end}&type=${type}`)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
@@ -498,4 +513,7 @@ module.exports = {
 	fetchProjectsWhereLoggedUserIsMarked,
 	getSingleProjectApplication,
 	deleteLoggedUser,
+	projectUserOne3,
+	projectUserOne4,
+	projectUserOne5,
 }

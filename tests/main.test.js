@@ -22,6 +22,9 @@ const {
 	compareValues, // new
 	projectUserOne1, // new
 	projectUserOne2, // new
+	projectUserOne3,
+	projectUserOne4,
+	projectUserOne5,
 	projectUserTwo1, // new
 	projectUserTwo2, // new
 	projectUserThree1,
@@ -1243,9 +1246,7 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	expect(projectsWhereUserIsMarked2.results.length).toBe(1)
 	expect(projectsWhereUserIsMarked2.results[0].id).toBe(project.id)
 
-	// 
-
-	// @todo Add applications
+	// Add applications for testing /deleteProject
 	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
 	const { projectApplication: projectApplicationUserTwo } = await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData } })
 
@@ -1291,6 +1292,54 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	expect(projectsWhereUserIsMarked3.results.length).toBe(0)
 
 	await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, status: 404 })
+})
+
+test('fetchProjectsWhereMarked type check', async () => {
+	await registerNewUser(userTwo, 201)
+	// User two registers
+
+	// User one creates project 1
+	// User one creates project 2
+	// User one creates project 3
+	// User one creates project 4
+	// User one creates project 5
+	const { project: project5 } = await createProject({ ...projectUserOne5, skills: ['node'], tags: ['blog'] }, userOne.token, 201)
+	const { project: project2 } = await createProject({ ...projectUserOne2, skills: ['node'], tags: ['blog'] }, userOne.token, 201)
+	const { project: project3 } = await createProject({ ...projectUserOne3, skills: ['node'], tags: ['blog'] }, userOne.token, 201)
+	const { project } = await createProject({ ...projectUserOne1, skills: ['react'], tags: ['wordpress'] }, userOne.token, 201)
+	const { project: project4 } = await createProject({ ...projectUserOne4, skills: ['node'], tags: ['blog'] }, userOne.token, 201)
+
+	// User one marks user two as potential candidate for 5 projects
+	await markPotentialCandidate({ token: userOne.token, projectId: project2.id, userId: userTwo.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project5.id, userId: userTwo.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project.id, userId: userTwo.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project3.id, userId: userTwo.id, status: 200 })
+	await markPotentialCandidate({ token: userOne.token, projectId: project4.id, userId: userTwo.id, status: 200 })
+
+	// User two sends application for 3 projects
+	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
+	await sendProjectApplication({ token: userTwo.token, projectId: project3.id, application: { ...applicationUserTwoData } })
+	await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData } })
+	await sendProjectApplication({ token: userTwo.token, projectId: project2.id, application: { ...applicationUserTwoData } })
+
+	// User two fetches projects he's marked (5)
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarked } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, })
+	expect(projectsWhereUserIsMarked.results.length).toBe(5)
+	expect(projectsWhereUserIsMarked.results[0].id).toBe(project4.id)
+	expect(projectsWhereUserIsMarked.results[4].id).toBe(project2.id)
+
+	// User two fetches projects but the ones he reacted to (3)
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarkedReacted } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, type: 'reacted' })
+	expect(projectsWhereUserIsMarkedReacted.results.length).toBe(3)
+	expect(projectsWhereUserIsMarkedReacted.results[0].id).toBe(project3.id)
+	expect(projectsWhereUserIsMarkedReacted.results[1].id).toBe(project.id)
+	expect(projectsWhereUserIsMarkedReacted.results[2].id).toBe(project2.id)
+
+	// User two fetches projects but the ones he didn't react to
+	const { projectsWhereUserIsMarked: projectsWhereUserIsMarkedNotReacted } = await fetchProjectsWhereLoggedUserIsMarked({ token: userTwo.token, type: 'not_reacted' })
+	expect(projectsWhereUserIsMarkedNotReacted.results.length).toBe(2)
+	expect(projectsWhereUserIsMarkedNotReacted.results[0].id).toBe(project4.id)
+	expect(projectsWhereUserIsMarkedNotReacted.results[1].id).toBe(project5.id)
 })
 
 
