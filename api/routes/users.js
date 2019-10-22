@@ -29,11 +29,6 @@ router.post('/block/:user_id', auth, require('../controllers/users/blockUser'))
 // Private
 router.post('/unblock/:user_id', auth, require('../controllers/users/unblockUser'))
 
-// Get /api/users
-// Get all users and its profiles
-// Public - test route
-router.get('/', require('../controllers/users/getAllUsers'))
-
 // Delete /api/users
 // Delete logged user
 // Private
