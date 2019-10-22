@@ -1246,13 +1246,28 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 	expect(projectsWhereUserIsMarked2.results.length).toBe(1)
 	expect(projectsWhereUserIsMarked2.results[0].id).toBe(project.id)
 
-	// Add applications for testing /deleteProject
+	// Add applications 
 	const applicationUserTwoData = { message: 'Please check my profile if you are interested in hiring me.', email: 'usertwo@gmail.com', }
+	const applicationUserThreeData = { message: 'Please check my profile if you are interested in hiring me.', email: 'userthree@gmail.com' }
 	const { projectApplication: projectApplicationUserTwo } = await sendProjectApplication({ token: userTwo.token, projectId: project.id, application: { ...applicationUserTwoData } })
+	const { projectApplication: projectApplicationUserThree } = await sendProjectApplication({ token: userThree.token, projectId: project.id, application: { ...applicationUserThreeData } })
 
 	const { projectApplications: projectApplicationsFetched } = await getProjectApplications({ token: userOne.token, projectId: project.id })
-	expect(projectApplicationsFetched.results.length).toBe(1)
-	expect(projectApplicationsFetched.results[0].id).toBe(projectApplicationUserTwo.id)
+	expect(projectApplicationsFetched.results.length).toBe(2)
+	expect(projectApplicationsFetched.results[0].id).toBe(projectApplicationUserThree.id)
+	expect(projectApplicationsFetched.results[1].id).toBe(projectApplicationUserTwo.id)
+
+	// Fetch marked potential candidates who reacted, should be 2
+	// Fetch marked potential candidates who didn't reacted, should be 2
+	const { markedCandidates: markedCandidatesReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'reacted'})
+	expect(markedCandidatesReacted.results.length).toBe(2)
+	expect(markedCandidatesReacted.results[0].id).toBe(userThree.id)
+	expect(markedCandidatesReacted.results[1].id).toBe(userTwo.id)
+	
+	const { markedCandidates: markedCandidatesNotReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'not_reacted'})
+	expect(markedCandidatesNotReacted.results.length).toBe(2)
+	expect(markedCandidatesNotReacted.results[0].id).toBe(userFive.id)
+	expect(markedCandidatesNotReacted.results[1].id).toBe(userFour.id)
 
 	// ** 
 	// Checking delete project aftermath
@@ -1341,22 +1356,5 @@ test('fetchProjectsWhereMarked type check', async () => {
 	expect(projectsWhereUserIsMarkedNotReacted.results[0].id).toBe(project4.id)
 	expect(projectsWhereUserIsMarkedNotReacted.results[1].id).toBe(project5.id)
 })
-
-test('fetchedMarkedPotentialCandidates type check', async () => {
-	// User 2, 3, 4, 5 registers
-
-	// User one creates a project
-
-	// User 1 marks user 2, 3, 4, 5 for potential candidate
-
-	// User 2, 3 send project applications
-
-	// User fetches all marked potential candidates (should be 4)
-
-	// User fetches all marked potential candidates who reacted (2)
-
-	// User fetches all marked potential candidates who didn't react (2)
-})
-
 
 
