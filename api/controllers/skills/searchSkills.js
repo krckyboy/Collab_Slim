@@ -7,17 +7,20 @@ module.exports = async (req, res) => {
 		const search = req.body.search // The value of the search input
 		let skills
 
-		const formattedSearch = search.toLowerCase().replace(/[^a-zA-Z ]/g, '')
+		const formattedSearch = search.toLowerCase()
+			.replace(/[^a-zA-Z ]/g, '') // This gets rid of all the non characters (also . - )
+			.trim()
 
 		// You could fetch all skills and then do a search in javascript to see if it matches because you'll probably have less than 1000 skills.
-		if (search.trim()) {
-			skills = await Skill.query().whereRaw('LOWER(name) LIKE ?', '%' + formattedSearch + '%')
+		if (formattedSearch) {
+			skills = await Skill.query()
+				.whereRaw('LOWER(name) LIKE ?', '%' + formattedSearch + '%')
 		} else {
 			return res.status(404).send()
 		}
 
 		if (skills.length > 0) {
-			return res.json(skills)
+			return res.json({ skills })
 		} else {
 			return res.status(404).send()
 		}

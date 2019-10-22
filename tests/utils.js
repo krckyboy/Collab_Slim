@@ -461,6 +461,24 @@ async function deleteLoggedUser({ token, status = 200, }) {
 	return res.body
 }
 
+async function searchSkills({ status = 200, searchValue }) {
+	const res = await request(app)
+		.get('/api/skills/search_skills')
+		.expect(status)
+		.send({ search: searchValue })
+
+	return res.body
+}
+
+async function searchTags({ status = 200, searchValue }) {
+	const res = await request(app)
+		.get('/api/tags/search_tags')
+		.expect(status)
+		.send({ search: searchValue })
+
+	return res.body
+}
+
 module.exports = {
 	registerNewUser,
 	userOne,
@@ -516,4 +534,6 @@ module.exports = {
 	projectUserOne3,
 	projectUserOne4,
 	projectUserOne5,
+	searchSkills,
+	searchTags,
 }

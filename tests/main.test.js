@@ -1259,12 +1259,12 @@ test('fetchedMarkedPotentialCandidates pagination', async () => {
 
 	// Fetch marked potential candidates who reacted, should be 2
 	// Fetch marked potential candidates who didn't reacted, should be 2
-	const { markedCandidates: markedCandidatesReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'reacted'})
+	const { markedCandidates: markedCandidatesReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'reacted' })
 	expect(markedCandidatesReacted.results.length).toBe(2)
 	expect(markedCandidatesReacted.results[0].id).toBe(userThree.id)
 	expect(markedCandidatesReacted.results[1].id).toBe(userTwo.id)
-	
-	const { markedCandidates: markedCandidatesNotReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'not_reacted'})
+
+	const { markedCandidates: markedCandidatesNotReacted } = await fetchedMarkedPotentialCandidates({ token: userOne.token, projectId: project.id, type: 'not_reacted' })
 	expect(markedCandidatesNotReacted.results.length).toBe(2)
 	expect(markedCandidatesNotReacted.results[0].id).toBe(userFive.id)
 	expect(markedCandidatesNotReacted.results[1].id).toBe(userFour.id)
@@ -1357,4 +1357,26 @@ test('fetchProjectsWhereMarked type check', async () => {
 	expect(projectsWhereUserIsMarkedNotReacted.results[1].id).toBe(project5.id)
 })
 
+test('Search skills and tags', async () => {
+	// User one creates a project
+	await createProject({
+		...projectUserOne1, skills: ['SQL', 'Node', 'node', 'nodejs', 'node.js', 'MongoDB', 'MONGODB'],
+		tags: ['ecommerce', 'irrelevant', 'Ecommerce', 'e-commerce']
+	}, userOne.token, 201)
+
+	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' }) // @todo Only fetches nodejs
+	const { skills: skillsNode2 } = await searchSkills({ searchValue: 'nodejs' }) // @todo Only fetches nodejs
+	const { skills: skillsNode3 } = await searchSkills({ searchValue: 'node' }) // Fetches all 3
+
+	const { tags: tagsEcommerce1 } = await searchTags({ searchValue: 'e-commerce' }) // Only fetches ecommerce and Ecommerce
+	const { tags: tagsEcommerce2 } = await searchTags({ searchValue: 'ecommerce' }) // Only fetches ecommerce and Ecommmerce
+
+	// Node returns all 3, but nodejs returns 1.
+	console.log(skillsNode1)
+	expect(skillsNode1.length).toBe(3)
+	expect(skillsNode2.length).toBe(3)
+	expect(skillsNode3.length).toBe(3)
+	expect(tagsEcommerce1.length).toBe(3)
+	expect(tagsEcommerce2.length).toBe(3)
+})
 
