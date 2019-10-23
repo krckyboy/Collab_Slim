@@ -1360,8 +1360,8 @@ test('fetchProjectsWhereMarked type check', async () => {
 test('Search skills and tags', async () => {
 	// User one creates a project
 	await createProject({
-		...projectUserOne1, skills: ['SQL', 'Node', 'node', 'nodejs', 'node.js', 'MongoDB', 'MONGODB'],
-		tags: ['ecommerce', 'irrelevant', 'Ecommerce', 'e-commerce']
+		...projectUserOne1, skills: ['SQL', 'Node', 'Node.js', 'node', 'nodejs', 'MongoDB', 'MONGODB'],
+		tags: ['ecommerce', 'irrelevant', 'Ecommerce', 'commercial']
 	}, userOne.token, 201)
 
 	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' }) // @todo Only fetches nodejs
@@ -1369,14 +1369,26 @@ test('Search skills and tags', async () => {
 	const { skills: skillsNode3 } = await searchSkills({ searchValue: 'node' }) // Fetches all 3
 
 	const { tags: tagsEcommerce1 } = await searchTags({ searchValue: 'e-commerce' }) // Only fetches ecommerce and Ecommerce
-	const { tags: tagsEcommerce2 } = await searchTags({ searchValue: 'ecommerce' }) // Only fetches ecommerce and Ecommmerce
+	const { tags: tagsEcommerce2 } = await searchTags({ searchValue: 'commerce' }) // Only fetches ecommerce and Ecommmerce
 
-	// Node returns all 3, but nodejs returns 1.
-	console.log(skillsNode1)
-	expect(skillsNode1.length).toBe(3)
-	expect(skillsNode2.length).toBe(3)
-	expect(skillsNode3.length).toBe(3)
-	expect(tagsEcommerce1.length).toBe(3)
-	expect(tagsEcommerce2.length).toBe(3)
+	expect(skillsNode1.length).toBe(2)
+	expect(skillsNode1[0].name).toBe('nodejs')
+	expect(skillsNode1[1].name).toBe('node')
+
+	expect(skillsNode2.length).toBe(2)
+	expect(skillsNode2[0].name).toBe('nodejs')
+	expect(skillsNode2[1].name).toBe('node')
+
+	expect(skillsNode3.length).toBe(2)
+	expect(skillsNode3[0].name).toBe('node')
+	expect(skillsNode3[1].name).toBe('nodejs')
+
+	expect(tagsEcommerce1.length).toBe(2)
+	expect(tagsEcommerce1[0].name).toBe('ecommerce')
+	expect(tagsEcommerce1[1].name).toBe('commercial')
+
+	expect(tagsEcommerce2.length).toBe(2)
+	expect(tagsEcommerce2[0].name).toBe('ecommerce')
+	expect(tagsEcommerce2[1].name).toBe('commercial')
 })
 

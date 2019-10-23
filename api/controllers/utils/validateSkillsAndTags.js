@@ -9,7 +9,7 @@ module.exports = function validateSkillsAndTags({ skills, tags }) {
 			return { err: true }
 		} else {
 			// Return skills, but only unique values
-			returningObj.skills = skills.filter((value, index, self) => self.indexOf(value) === index)
+			returningObj.skills = skills.map(skill => skill.toLowerCase().replace(/[^a-zA-Z ]/g, '')).filter((value, index, self) => self.indexOf(value) === index)
 		}
 	} else {
 		returningObj.skills = []
@@ -20,7 +20,7 @@ module.exports = function validateSkillsAndTags({ skills, tags }) {
 		if (!checkIfArrayValuesAreOfSpecificType(tags, 'string')) {
 			return { err: true }
 		} else {
-			returningObj.tags = tags.filter((value, index, self) => self.indexOf(value) === index)
+			returningObj.tags = tags.map(tag => tag.toLowerCase().replace(/[^a-zA-Z ]/g, '')).filter((value, index, self) => self.indexOf(value) === index)
 		}
 	} else {
 		returningObj.tags = []
