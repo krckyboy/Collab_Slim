@@ -27,5 +27,7 @@ module.exports = async function updateCountTag({ tagsWithIds }) {
 		const awaited = await tagPromise
 		const filtered = awaited.filter(tag => tag)
 		return filtered
+	} else {
+		return []
 	}
 }

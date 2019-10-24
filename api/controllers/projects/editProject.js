@@ -69,14 +69,14 @@ module.exports = async (req, res) => {
 		const oldSkillsOnProject = project.skills
 		const oldTagsOnProject = project.has_tags
 
-		await updateCountSkills({ skillsWithIds: [...oldSkillsOnProject], type: 'required_skills' })
-		await updateCountTag({ tagsWithIds: [...oldTagsOnProject] })
+		const skillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...skillsWithIds, ...oldSkillsOnProject], type: 'required_skills' })
+		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds, ...oldTagsOnProject] })
 
-		const skillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...skillsWithIds], type: 'required_skills' })
-		const tagsWithCountUpdated = await updateCountTag({ tagsWithIds: [...tagsWithIds] })
+		const newSkillNames = skillsWithIds.map(s => s.name)
+		const newTagNames = tagsWithIds.map(s => s.name)
 
-		updatedProject.has_tags = tagsWithCountUpdated
-		updatedProject.skills = skillsWithCountUpdated
+		updatedProject.has_tags = tagsWithCountUpdated.filter(t => newTagNames.includes(t.name))
+		updatedProject.skills = skillsWithCountUpdated.filter(s => newSkillNames.includes(s.name))
 
 		res.status(200).json({ updatedProject })
 	} catch (err) {

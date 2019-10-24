@@ -1391,4 +1391,3 @@ test('Search skills and tags', async () => {
 	expect(tagsEcommerce2[0].name).toBe('ecommerce')
 	expect(tagsEcommerce2[1].name).toBe('commercial')
 })
-

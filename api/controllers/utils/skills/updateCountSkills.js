@@ -35,5 +35,7 @@ module.exports = async function updateCountSkills({ skillsWithIds, type }) {
 		const awaited = await skillPromise
 		const filtered = awaited.filter(skill => skill)
 		return filtered
+	} else {
+		return []
 	}
 }
