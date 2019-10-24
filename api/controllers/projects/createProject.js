@@ -57,7 +57,6 @@ module.exports = async (req, res) => {
 		project.skills = skillsWithCountUpdated
 
 		res.status(201).json({ project })
-		// @todo images
 	} catch (err) {
 		console.error(err)
 		res.status(500).send('Server error')

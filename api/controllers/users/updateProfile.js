@@ -48,8 +48,9 @@ module.exports = async (req, res) => {
 
 		const newSkillsWithCountUpdated = await updateCountSkills({ skillsWithIds: [...newSkillsWithIds, ...oldSkillsOnUser], type: 'has_skills' })
 
-		// @todo Go through the newSkillsWithCountUpdated, update updatedUser.has_skills with ones that he actually has
-		updatedUser.skills = newSkillsWithCountUpdated
+		// Go through the newSkillsWithCountUpdated, update updatedUser.has_skills with ones that he actually has
+		const newSkillNames = newSkillsWithIds.map(s => s.name)
+		updatedUser.skills = newSkillsWithCountUpdated.filter(s => newSkillNames.includes(s.name))
 
 		return res.json({ updatedUser })
 	} catch (err) {

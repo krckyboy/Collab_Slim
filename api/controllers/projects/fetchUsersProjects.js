@@ -3,7 +3,6 @@ const Project = require('../../../db/models/Project')
 const checkIfBlocked = require('../users/utils/checkIfBlocked')
 const validatePagination = require('../utils/validatePagination')
 
-// @todo try to add query params for finalized, archived, etc.
 module.exports = async (req, res) => {
 	try {
 		const userId = parseInt(req.params.user_id)

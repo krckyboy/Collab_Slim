@@ -1364,8 +1364,8 @@ test('Search skills and tags', async () => {
 		tags: ['ecommerce', 'irrelevant', 'Ecommerce', 'commercial']
 	}, userOne.token, 201)
 
-	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' }) // @todo Only fetches nodejs
-	const { skills: skillsNode2 } = await searchSkills({ searchValue: 'nodejs' }) // @todo Only fetches nodejs
+	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' }) 
+	const { skills: skillsNode2 } = await searchSkills({ searchValue: 'nodejs' }) 
 	const { skills: skillsNode3 } = await searchSkills({ searchValue: 'node' }) // Fetches all 3
 
 	const { tags: tagsEcommerce1 } = await searchTags({ searchValue: 'e-commerce' }) // Only fetches ecommerce and Ecommerce
