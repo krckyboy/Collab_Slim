@@ -62,6 +62,10 @@ const {
 	fetchProjectsWhereLoggedUserIsMarked,
 	getSingleProjectApplication,
 	deleteLoggedUser,
+	initialProfileValuesUserFive,
+	initialProfileValuesUserSix,
+	initialProfileValuesUserSeven,
+	initialProfileValuesUserEight,
 } = require('./utils')
 
 const User = require('../db/models/User')
@@ -96,26 +100,18 @@ afterAll(async () => {
 
 test('Registration [201, 400]', async () => {
 	await registerNewUser({
-		name: 'dusantest',
 		email: 'dusantest@gmail.com',
 		password: 'password'
 	}, 201)
 
 	const fetchedUser = await User.query().findOne({ email: 'dusantest@gmail.com' })
 
-	expect(fetchedUser.name).toBe('dusantest')
+	expect(fetchedUser.name).toBe(null)
 	expect(fetchedUser.email).toBe('dusantest@gmail.com')
 	expect(fetchedUser.password).not.toBe('password')
 
 	await registerNewUser({
-		name: 'someOtherName',
 		email: 'dusantest@gmail.com',
-		password: 'password'
-	}, 400)
-
-	await registerNewUser({
-		name: 'dusantest',
-		email: 'newemail@gmail.com',
 		password: 'password'
 	}, 400)
 })
@@ -124,6 +120,7 @@ test('Login [200, 2x 400]', async () => {
 	// User one logins
 	const responseLoginSuccess = await login(userOne)
 
+	// eslint-disable-next-line require-atomic-updates
 	userOne.token = responseLoginSuccess
 
 	// Check if the new token works by hitting a private route
@@ -134,7 +131,7 @@ test('Login [200, 2x 400]', async () => {
 		.expect(200)
 
 	const loggedUserData = responseLoggedUserData.body.user
-	expect(loggedUserData.name).toBe(userOne.name)
+	expect(loggedUserData.name).toBe(null)
 	expect(loggedUserData.email).toBe(userOne.email)
 
 	// When user doesn't exist return 400
@@ -272,13 +269,11 @@ test('Block + unblock user + getUserById + fetchProjectById', async () => {
 	// User one fetches user two [200]
 	const { user: fetchedUserTwo } = await fetchUserById(userOne.token, userTwo.id, 200)
 	expect(fetchedUserTwo.id).toBe(userTwo.id)
-	expect(fetchedUserTwo.name).toBe(userTwo.name)
 	expect(fetchedUserTwo.email).toBe(undefined)
 
 	// User two fetches user one [200]
 	const { user: fetchedUserOne } = await fetchUserById(userTwo.token, userOne.id, 200)
 	expect(fetchedUserOne.id).toBe(userOne.id)
-	expect(fetchedUserOne.name).toBe(userOne.name)
 	expect(fetchedUserOne.email).toBe(undefined)
 })
 
@@ -319,23 +314,43 @@ test('User profile update + skills with has_skills check', async () => {
 	const skills2 = await Skill.query()
 	checkCount({ type: 'has_skills_count', arr: skills2, length: 2, values: { react: 2, express: 2 } })
 
-	// User one edits profile
+	// User one edits profile, but fails due to name not being unique
 	await populateProfile({
 		...initialProfileValuesUserOne,
 		location: 'user_one_location_edited',
 		website: '',
+		name: 'usertwo',
+		skills: ['node', 'react'] // removing express, adding node
+	}, userOne.token,
+		400)
+
+	// Check userOne data after editing
+	const userOneFetched2Fail = await fetchUserById(userOne.token, userOne.id, 200)
+
+	compareValues({
+		obj: userOneFetched2Fail.user,
+		values: initialProfileValuesUserOne
+	})
+
+	// User one edits profile successfully
+	await populateProfile({
+		...initialProfileValuesUserOne,
+		location: 'user_one_location_edited',
+		website: '',
+		name: 'userOneNew',
 		skills: ['node', 'react'] // removing express, adding node
 	}, userOne.token,
 		200)
-
-	// Check userOne data after editing
-	const userOneFetched2 = await fetchUserById(userOne.token, userOne.id, 200)
 
 	const newValuesUserOne = {
 		...initialProfileValuesUserOne,
 		location: 'user_one_location_edited',
 		website: null,
+		name: 'userOneNew',
 	}
+
+	// Check userOne data after editing
+	const userOneFetched2 = await fetchUserById(userOne.token, userOne.id, 200)
 
 	compareValues({
 		obj: userOneFetched2.user,
@@ -350,9 +365,16 @@ test('User profile update + skills with has_skills check', async () => {
 	const skills3 = await Skill.query()
 	checkCount({ type: 'has_skills_count', arr: skills3, length: 3, values: { react: 2, express: 1, node: 1 } })
 
-	// User sends only website key value pair to populate profile
+	// User sends only website key value pair to populate profile, but without name
 	await populateProfile({
 		website: 'website_edited'
+	}, userOne.token,
+		400)
+
+	// User sends only website key value pair to populate profile
+	await populateProfile({
+		website: 'website_edited',
+		name: 'userOneNew'
 	}, userOne.token,
 		200)
 
@@ -377,7 +399,8 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// User one adds skills again
 	await populateProfile({
-		skills: ['react', 'express']
+		skills: ['react', 'express'],
+		name: 'userOneNew'
 	}, userOne.token,
 		200)
 
@@ -412,7 +435,8 @@ test('User profile update + skills with has_skills check', async () => {
 
 	// User one tries to update profile with invalid data
 	await populateProfile({
-		skills: true
+		skills: true,
+		name: 'userOneNew'
 	}, userOne.token,
 		400)
 
@@ -941,13 +965,13 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	await registerNewUser(userTwo, 201)
 
 	// Users creating profiles
-	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userTwo.token, 200)
-	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'irrelevant'] }, userThree.token, 200)
-	await populateProfile({ skills: ['node', 'express', 'react', 'irrelevant2', 'irrelevant'] }, userFour.token, 200)
-	await populateProfile({ skills: ['node', 'express', 'irrelevant3', 'irrelevant2', 'irrelevant'] }, userFive.token, 200)
-	await populateProfile({ skills: ['node', 'irrelevant2', 'irrelevant3', 'irrelevant2', 'irrelevant'] }, userSix.token, 200)
-	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
-	await populateProfile({ skills: ['irrelevant'] }, userEight.token, 200)
+	await populateProfile({ ...initialProfileValuesUserTwo, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userTwo.token, 200)
+	await populateProfile({ ...initialProfileValuesUserThree, skills: ['node', 'express', 'react', 'sql', 'irrelevant'] }, userThree.token, 200)
+	await populateProfile({ ...initialProfileValuesUserFour, skills: ['node', 'express', 'react', 'irrelevant2', 'irrelevant'] }, userFour.token, 200)
+	await populateProfile({ ...initialProfileValuesUserFive, skills: ['node', 'express', 'irrelevant3', 'irrelevant2', 'irrelevant'] }, userFive.token, 200)
+	await populateProfile({ ...initialProfileValuesUserSix, skills: ['node', 'irrelevant2', 'irrelevant3', 'irrelevant2', 'irrelevant'] }, userSix.token, 200)
+	await populateProfile({ ...initialProfileValuesUserSeven, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
+	await populateProfile({ ...initialProfileValuesUserEight, skills: ['irrelevant'] }, userEight.token, 200)
 
 	// User one blocks user seven
 	await blockUser(userOne.token, userSeven.id, 200)
@@ -979,7 +1003,7 @@ test('[/fetchPotentialUsers /fetchPotentialProjects] with pagination', async () 
 	expect(potentialUsersProjectUserOne2.results.map(u => u.id).includes(userSeven.id)).toBe(false)
 
 	// User seven populates profile with skills
-	await populateProfile({ skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
+	await populateProfile({ ...initialProfileValuesUserSeven, skills: ['node', 'express', 'react', 'sql', 'mongodb'] }, userSeven.token, 200)
 
 	// User seven gets potential projects
 	const { projects: potentialProjectsUserSeven } = await fetchPotentialProjects(userSeven.token, 200)
@@ -1364,8 +1388,8 @@ test('Search skills and tags', async () => {
 		tags: ['ecommerce', 'irrelevant', 'Ecommerce', 'commercial']
 	}, userOne.token, 201)
 
-	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' }) 
-	const { skills: skillsNode2 } = await searchSkills({ searchValue: 'nodejs' }) 
+	const { skills: skillsNode1 } = await searchSkills({ searchValue: 'node.js' })
+	const { skills: skillsNode2 } = await searchSkills({ searchValue: 'nodejs' })
 	const { skills: skillsNode3 } = await searchSkills({ searchValue: 'node' }) // Fetches all 3
 
 	const { tags: tagsEcommerce1 } = await searchTags({ searchValue: 'e-commerce' }) // Only fetches ecommerce and Ecommerce

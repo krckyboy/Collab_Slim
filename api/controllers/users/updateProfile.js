@@ -4,9 +4,10 @@ const insertMissingSkillsToDb = require('../utils/skills/insertMissingSkillsToDb
 const updateCountSkills = require('../utils/skills/updateCountSkills')
 const checkIfObjectValuesAreOfSpecificType = require('../utils/checkIfObjectValuesAreOfSpecificType')
 const validateSkillsAndTags = require('../utils/validateSkillsAndTags')
+const validateUsername = require('../utils/users/validateUsername')
 
 module.exports = async (req, res) => {
-	const profileFields = ['location', 'website', 'bio', 'github']
+	const profileFields = ['location', 'website', 'bio', 'github', 'name']
 
 	// Returns an object with key value pairs related to profileFields
 	const profileObject = fetchDataFromKeys(profileFields, req)
@@ -21,6 +22,12 @@ module.exports = async (req, res) => {
 
 	if (err) {
 		return res.status(400).json({ msg: 'Invalid data.' })
+	}
+
+	const usernameValidation = await validateUsername({ username: profileObject.name, userId: req.user.id })
+
+	if (usernameValidation.err) {
+		return res.status(400).json({ msg: usernameValidation.text })
 	}
 	try {
 		const user = await User.query().findById(req.user.id).eager('skills')

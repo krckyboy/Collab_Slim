@@ -5,7 +5,7 @@ exports.up = knex => {
 				.createTable('users', table => {
 					table.increments('id').primary()
 					table.timestamps(true, true)
-					table.string('name').unique().notNull()
+					table.string('name').unique()
 					table.string('email').unique().notNull()
 					table.string('location')
 					table.string('website')

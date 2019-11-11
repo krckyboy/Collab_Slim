@@ -67,6 +67,7 @@ const userEight = {
 }
 
 const initialProfileValuesUserOne = {
+	name: 'userone',
 	location: 'user_one_location',
 	website: 'www.user_one.com',
 	bio: 'user_one biography.',
@@ -74,6 +75,7 @@ const initialProfileValuesUserOne = {
 
 }
 const initialProfileValuesUserTwo = {
+	name: 'usertwo',
 	location: 'user_two_location',
 	website: 'www.user_two.com',
 	bio: 'user_two biography.',
@@ -81,6 +83,7 @@ const initialProfileValuesUserTwo = {
 }
 
 const initialProfileValuesUserThree = {
+	name: 'userthree',
 	location: 'user_three_location',
 	website: 'www.user_three.com',
 	bio: 'user_three biography.',
@@ -88,10 +91,43 @@ const initialProfileValuesUserThree = {
 }
 
 const initialProfileValuesUserFour = {
+	name: 'userfour',
 	location: 'user_four_location',
 	website: 'www.user_four.com',
 	bio: 'user_four biography.',
 	github: 'user_four_github',
+}
+
+const initialProfileValuesUserFive = {
+	name: 'userfive',
+	location: 'user_five_location',
+	website: 'www.user_five.com',
+	bio: 'user_five biography.',
+	github: 'user_five_github',
+}
+
+const initialProfileValuesUserSix = {
+	name: 'usersix',
+	location: 'user_six_location',
+	website: 'www.user_six.com',
+	bio: 'user_six biography.',
+	github: 'user_six_github',
+}
+
+const initialProfileValuesUserSeven = {
+	name: 'userseven',
+	location: 'user_seven_location',
+	website: 'www.user_seven.com',
+	bio: 'user_seven biography.',
+	github: 'user_seven_github',
+}
+
+const initialProfileValuesUserEight = {
+	name: 'usereight',
+	location: 'user_eight_location',
+	website: 'www.user_eight.com',
+	bio: 'user_eight biography.',
+	github: 'user_eight_github',
 }
 
 const projectUserOne1 = {
@@ -536,4 +572,8 @@ module.exports = {
 	projectUserOne5,
 	searchSkills,
 	searchTags,
+	initialProfileValuesUserFive,
+	initialProfileValuesUserSix,
+	initialProfileValuesUserSeven,
+	initialProfileValuesUserEight,
 }
