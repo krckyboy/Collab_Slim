@@ -64,7 +64,6 @@ exports.up = knex => {
 					table.string('description')
 					table.string('url')
 					table.string('location')
-					table.string('image')
 					table.boolean('paid')
 					table.boolean('remote')
 					table.boolean('archived').defaultTo(false)
