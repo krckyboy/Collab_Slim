@@ -1,12 +1,13 @@
 # Collab - slim version (_backend_)
 
+## Note
+
+This is the repo of the back-end side of the app. All APIs are fully tested taking into account most scenarios that I would think of.
+
 ## Description
 
 The goal of the app is to connect people to work on projects. The biggest advantage of this web app is allowing developers to choose on which project they will work on. It’s different than other job listing apps because you don’t usually know what you’ll be working on, while that's not the case here.
 
-## Note
-
-This is the repo of the back-end side of the app. All APIs are fully tested taking into account most scenarios that I would think of.
 
 ## Stack
 
