@@ -7,7 +7,7 @@ const userOne = {
 	email: 'userone@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userTwo = {
@@ -15,7 +15,7 @@ const userTwo = {
 	email: 'usertwo@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userThree = {
@@ -23,7 +23,7 @@ const userThree = {
 	email: 'userthree@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userFour = {
@@ -31,7 +31,7 @@ const userFour = {
 	email: 'userfour@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userFive = {
@@ -39,7 +39,7 @@ const userFive = {
 	email: 'userfive@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userSix = {
@@ -47,7 +47,7 @@ const userSix = {
 	email: 'usersix@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userSeven = {
@@ -55,7 +55,7 @@ const userSeven = {
 	email: 'userseven@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const userEight = {
@@ -63,7 +63,7 @@ const userEight = {
 	email: 'usereight@gmail.com',
 	password: 'password',
 	token: '',
-	id: ''
+	id: '',
 }
 
 const initialProfileValuesUserOne = {
@@ -72,7 +72,6 @@ const initialProfileValuesUserOne = {
 	website: 'www.user_one.com',
 	bio: 'user_one biography.',
 	github: 'user_one_github',
-
 }
 const initialProfileValuesUserTwo = {
 	name: 'usertwo',
@@ -136,70 +135,70 @@ const projectUserOne1 = {
 	url: 'www.user_one_project.com',
 	paid: true,
 	location: 'Houston, Texas',
-	remote: true
+	remote: true,
 }
 
 const projectUserOne2 = {
 	name: 'user_one_project_2',
 	description: 'user_one_project_description_2',
-	url: 'www.user_one_project_2.com'
+	url: 'www.user_one_project_2.com',
 }
 const projectUserOne3 = {
 	name: 'user_one_project_3',
 	description: 'user_one_project_description_3',
-	url: 'www.user_one_project_3.com'
+	url: 'www.user_one_project_3.com',
 }
 const projectUserOne4 = {
 	name: 'user_one_project_4',
 	description: 'user_one_project_description_4',
-	url: 'www.user_one_project_4.com'
+	url: 'www.user_one_project_4.com',
 }
 const projectUserOne5 = {
 	name: 'user_one_project_5',
 	description: 'user_one_project_description_5',
-	url: 'www.user_one_project_5.com'
+	url: 'www.user_one_project_5.com',
 }
 
 const projectUserTwo1 = {
 	name: 'user_two_project',
 	description: 'user_two_project_description',
-	url: 'www.user_two_project.com'
+	url: 'www.user_two_project.com',
 }
 
 const projectUserTwo2 = {
 	name: 'user_two_project_2',
 	description: 'user_two_project_description_2',
-	url: 'www.user_two_project_2.com'
+	url: 'www.user_two_project_2.com',
 }
 
 const projectUserThree1 = {
 	name: 'user_three_project',
 	description: 'user_three_project_description',
-	url: 'www.user_three_project.com'
+	url: 'www.user_three_project.com',
 }
 
 const projectUserThree2 = {
 	name: 'user_three_project_2',
 	description: 'user_three_project_description_2',
-	url: 'www.user_three_project_2.com'
+	url: 'www.user_three_project_2.com',
 }
 
 const projectUserFour1 = {
 	name: 'user_four_project',
 	description: 'user_four_project_description',
-	url: 'www.user_four_project.com'
+	url: 'www.user_four_project.com',
 }
 
 const projectUserFour2 = {
 	name: 'user_four_project_2',
 	description: 'user_four_project_description_2',
-	url: 'www.user_four_project_2.com'
+	url: 'www.user_four_project_2.com',
 }
 
 const projectUserSeven1 = {
 	name: 'user_seven_project',
 	description: 'user_seven_project_description',
-	url: 'www.user_seven_project.com'
+	url: 'www.user_seven_project.com',
 }
 
 function checkCount({ type, arr, length, values }) {
@@ -212,16 +211,16 @@ function checkCount({ type, arr, length, values }) {
 
 	const valuesAsArr = Object.entries(values)
 	const valueNames = Object.keys(values)
-	const namesFromArr = arr.map(el => el.name)
+	const namesFromArr = arr.map((el) => el.name)
 
 	// Check if the specified values exist - ex: check if "react" exists
-	valueNames.forEach(el => {
+	valueNames.forEach((el) => {
 		expect(namesFromArr.includes(el)).toBe(true)
 	})
 
 	// Check each individual value count
-	valuesAsArr.forEach(el => {
-		const elFromArr = arr.find(elArr => el[0] === elArr.name)
+	valuesAsArr.forEach((el) => {
+		const elFromArr = arr.find((elArr) => el[0] === elArr.name)
 		expect(elFromArr[type]).toBe(el[1])
 	})
 }
@@ -230,7 +229,7 @@ function compareValues({ obj, values }) {
 	const valuesAsArr = Object.entries(values)
 
 	// Check each individual value count
-	valuesAsArr.forEach(el => {
+	valuesAsArr.forEach((el) => {
 		const valueFromObj = obj[[el[0]]]
 		const valueFromValues = el[1]
 		expect(valueFromObj).toBe(valueFromValues)
@@ -354,7 +353,14 @@ async function deleteProject(projectId, token, status = 200) {
 	return res.body
 }
 
-async function fetchUsersProjects(userId, token, status = 200, type = '', start, end) {
+async function fetchUsersProjects(
+	userId,
+	token,
+	status = 200,
+	type = '',
+	start,
+	end
+) {
 	const res = await request(app)
 		.get(`/api/projects/user/${userId}?type=${type}&start=${start}&end=${end}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -372,7 +378,13 @@ async function fetchPotentialProjects(token, status = 200, start, end) {
 	return res.body
 }
 
-async function fetchPotentialUsers({ token, projectId, start, end, status = 200 }) {
+async function fetchPotentialUsers({
+	token,
+	projectId,
+	start,
+	end,
+	status = 200,
+}) {
 	const res = await request(app)
 		.get(`/api/projects/${projectId}/potentialUsers?start=${start}&end=${end}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -397,7 +409,12 @@ async function fetchSkills({ status = 200, start, end, type }) {
 	return res.body
 }
 
-async function fetchLatestProjectsPagination({ token, start, end, status = 200 }) {
+async function fetchLatestProjectsPagination({
+	token,
+	start,
+	end,
+	status = 200,
+}) {
 	const res = await request(app)
 		.get(`/api/projects?start=${start}&end=${end}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -406,7 +423,12 @@ async function fetchLatestProjectsPagination({ token, start, end, status = 200 }
 	return res.body
 }
 
-async function sendProjectApplication({ token, projectId, status = 201, application }) {
+async function sendProjectApplication({
+	token,
+	projectId,
+	status = 201,
+	application,
+}) {
 	const res = await request(app)
 		.post(`/api/projects/project_application/${projectId}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -425,16 +447,29 @@ async function getNotifications(token, status = 200) {
 	return res.body
 }
 
-async function getProjectApplications({ token, projectId, status = 200, start, end, type = '' }) {
+async function getProjectApplications({
+	token,
+	projectId,
+	status = 200,
+	start,
+	end,
+	type = '',
+}) {
 	const res = await request(app)
-		.get(`/api/projects/project_applications/${projectId}?start=${start}&end=${end}&type=${type}`)
+		.get(
+			`/api/projects/project_applications/${projectId}?start=${start}&end=${end}&type=${type}`
+		)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
 	return res.body
 }
 
-async function markProjectApplicationRead({ token, projectApplicationId, status = 200 }) {
+async function markProjectApplicationRead({
+	token,
+	projectApplicationId,
+	status = 200,
+}) {
 	const res = await request(app)
 		.patch(`/api/projects/project_application_read/${projectApplicationId}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -443,7 +478,11 @@ async function markProjectApplicationRead({ token, projectApplicationId, status 
 	return res.body
 }
 
-async function markProjectApplicationArchived({ token, projectApplicationId, status = 200 }) {
+async function markProjectApplicationArchived({
+	token,
+	projectApplicationId,
+	status = 200,
+}) {
 	const res = await request(app)
 		.patch(`/api/projects/project_application_archived/${projectApplicationId}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -452,7 +491,12 @@ async function markProjectApplicationArchived({ token, projectApplicationId, sta
 	return res.body
 }
 
-async function markPotentialCandidate({ token, projectId, userId, status = 200 }) {
+async function markPotentialCandidate({
+	token,
+	projectId,
+	userId,
+	status = 200,
+}) {
 	const res = await request(app)
 		.post(`/api/projects/marked_users/${projectId}/${userId}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -461,25 +505,46 @@ async function markPotentialCandidate({ token, projectId, userId, status = 200 }
 	return res.body
 }
 
-async function fetchedMarkedPotentialCandidates({ token, projectId, start, end, type, status = 200 }) {
+async function fetchedMarkedPotentialCandidates({
+	token,
+	projectId,
+	start,
+	end,
+	type,
+	status = 200,
+}) {
 	const res = await request(app)
-		.get(`/api/projects/marked_users/${projectId}?start=${start}&end=${end}&type=${type}`)
+		.get(
+			`/api/projects/marked_users/${projectId}?start=${start}&end=${end}&type=${type}`
+		)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
 	return res.body
 }
 
-async function fetchProjectsWhereLoggedUserIsMarked({ token, start, end, type, status = 200 }) {
+async function fetchProjectsWhereLoggedUserIsMarked({
+	token,
+	start,
+	end,
+	type,
+	status = 200,
+}) {
 	const res = await request(app)
-		.get(`/api/projects/projects_where_user_is_marked?start=${start}&end=${end}&type=${type}`)
+		.get(
+			`/api/projects/projects_where_user_is_marked?start=${start}&end=${end}&type=${type}`
+		)
 		.set('Authorization', `Bearer ${token}`)
 		.expect(status)
 
 	return res.body
 }
 
-async function getSingleProjectApplication({ token, projectApplicationId, status = 200, }) {
+async function getSingleProjectApplication({
+	token,
+	projectApplicationId,
+	status = 200,
+}) {
 	const res = await request(app)
 		.get(`/api/projects/project_application/${projectApplicationId}`)
 		.set('Authorization', `Bearer ${token}`)
@@ -488,7 +553,7 @@ async function getSingleProjectApplication({ token, projectApplicationId, status
 	return res.body
 }
 
-async function deleteLoggedUser({ token, status = 200, }) {
+async function deleteLoggedUser({ token, status = 200 }) {
 	const res = await request(app)
 		.delete('/api/users/')
 		.set('Authorization', `Bearer ${token}`)
@@ -516,7 +581,6 @@ async function searchTags({ status = 200, searchValue }) {
 }
 
 module.exports = {
-	registerNewUser,
 	userOne,
 	userTwo,
 	userThree,
@@ -525,13 +589,6 @@ module.exports = {
 	userSix,
 	userSeven,
 	userEight,
-	login,
-	blockUser,
-	unblockUser,
-	fetchUserById,
-	populateProfile,
-	checkCount,
-	compareValues,
 	initialProfileValuesUserOne,
 	initialProfileValuesUserTwo,
 	initialProfileValuesUserThree,
@@ -545,6 +602,21 @@ module.exports = {
 	projectUserFour1,
 	projectUserFour2,
 	projectUserSeven1,
+	projectUserOne3,
+	projectUserOne4,
+	projectUserOne5,
+	initialProfileValuesUserFive,
+	initialProfileValuesUserSix,
+	initialProfileValuesUserSeven,
+	initialProfileValuesUserEight,
+	registerNewUser,
+	login,
+	blockUser,
+	unblockUser,
+	fetchUserById,
+	populateProfile,
+	checkCount,
+	compareValues,
 	createProject,
 	archiveProject,
 	unarchiveProject,
@@ -567,13 +639,6 @@ module.exports = {
 	fetchProjectsWhereLoggedUserIsMarked,
 	getSingleProjectApplication,
 	deleteLoggedUser,
-	projectUserOne3,
-	projectUserOne4,
-	projectUserOne5,
 	searchSkills,
 	searchTags,
-	initialProfileValuesUserFive,
-	initialProfileValuesUserSix,
-	initialProfileValuesUserSeven,
-	initialProfileValuesUserEight,
 }
