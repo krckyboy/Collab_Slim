@@ -10,22 +10,22 @@ This is the repo of the back-end side of the app. All APIs are fully tested taki
 
 ## Stack
 
-⋅⋅* Node.js
-⋅⋅* Express
-⋅⋅* PostgreSQL
-⋅⋅* Objection.js
+* Node.js
+* Express
+* PostgreSQL
+* Objection.js
 
 ## Models
 
-⋅⋅* User
-⋅⋅* Project
-⋅⋅* Authentication
-⋅⋅* Skill
-⋅⋅* Tag
-⋅⋅* Marked Candidate
-⋅⋅* Notification
-⋅⋅* Event
-⋅⋅* Project Application
+* User
+* Project
+* Authentication
+* Skill
+* Tag
+* Marked Candidate
+* Notification
+* Event
+* Project Application
 
 ## User stories
 
